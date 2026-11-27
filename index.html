@@ -1,0 +1,2362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insekta — Portal Klaim & Rekap Google Review Teknisi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.22s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+
+  <!-- Toast Notification Banner (Pengganti alert/confirm) -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full px-4 sm:px-0 pointer-events-none"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-between gap-3 py-3.5">
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-emerald-700 text-white flex items-center justify-center shadow-sm shrink-0">
+            <!-- Inline SVG Logo Insekta -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 truncate">
+                Insekta
+              </h1>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
+                GBP Review Portal
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 truncate">
+              Portal Klaim & Rekap Google Review Teknisi
+            </p>
+          </div>
+        </div>
+
+        <!-- Role Switcher (Teknisi vs Admin/Supervisor) -->
+        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto justify-center">
+          <button
+            type="button"
+            id="btnRoleTeknisi"
+            onclick="switchRole('teknisi')"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </svg>
+            <span>Mode Teknisi</span>
+          </button>
+          <button
+            type="button"
+            id="btnRoleAdmin"
+            onclick="switchRole('admin')"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M12 8v4" />
+              <path d="M12 16h.01" />
+            </svg>
+            <span>Mode Admin / Supervisor</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-slate-100" aria-label="Navigasi Utama">
+        <button
+          type="button"
+          id="tabClaim"
+          onclick="switchTab('claim')"
+          class="tab-btn inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors whitespace-nowrap cursor-pointer"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <span>Klaim Review Baru</span>
+        </button>
+
+        <button
+          type="button"
+          id="tabRekap"
+          onclick="switchTab('rekap')"
+          class="tab-btn inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors whitespace-nowrap cursor-pointer"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+          <span>Rekap Bulanan & Performa</span>
+        </button>
+
+        <button
+          type="button"
+          id="tabAdmin"
+          onclick="switchTab('admin')"
+          class="tab-btn inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors whitespace-nowrap cursor-pointer"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>
+          <span>Validasi & Pengaturan</span>
+          <span id="pendingBadge" class="ml-1 px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Role Context Banner -->
+    <div id="roleBanner" class="rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
+      <div class="flex items-start sm:items-center gap-3">
+        <div id="roleBannerIcon" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"></div>
+        <div>
+          <p id="roleBannerTitle" class="text-sm font-bold"></p>
+          <p id="roleBannerDesc" class="text-xs text-slate-600 mt-0.5"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-600 shrink-0">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Tersimpan di browser (localStorage)
+        </span>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: FORM KLAIM REVIEW TEKNISI                         -->
+    <!-- ========================================================= -->
+    <section id="viewClaim" class="space-y-6 animate-fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Form Column -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Form Klaim Google Review</h2>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Unggah screenshot bukti ulasan klien untuk dicatat ke laporan bulanan.
+              </p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 border border-brand-100">
+              Tarif: <strong id="formRewardRateLabel">Rp 20.000</strong> / valid
+            </span>
+          </div>
+
+          <form id="claimForm" class="space-y-5" novalidate>
+            <!-- Nama Teknisi -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="technicianSelect" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Pilih Nama Teknisi <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  id="technicianSelect"
+                  onchange="handleTechnicianSelectChange()"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+                >
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div>
+                <label for="technicianCustom" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Atau Ketik Nama Teknisi Baru
+                </label>
+                <input
+                  type="text"
+                  id="technicianCustom"
+                  placeholder="Contoh: Budi Santoso"
+                  oninput="handleCustomTechnicianInput()"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+                />
+              </div>
+            </div>
+
+            <!-- Profil GBP / Cabang -->
+            <div class="space-y-3 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label for="gbpSelect" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Profil Google Business Profile / Cabang <span class="text-rose-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  onclick="toggleNewGbpBox()"
+                  class="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 hover:text-brand-800 cursor-pointer"
+                >
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  <span>Tambah Profil GBP Baru</span>
+                </button>
+              </div>
+
+              <select
+                id="gbpSelect"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+              >
+                <!-- Populated dynamically -->
+              </select>
+
+              <!-- Tambah Profil GBP Baru Inline -->
+              <div id="newGbpBox" class="hidden pt-2 border-t border-slate-200 space-y-2.5 animate-fade-in">
+                <p class="text-xs font-semibold text-slate-700">Tambah Profil GBP / Cabang Baru:</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    id="newGbpNameInput"
+                    placeholder="Contoh: Insekta Cabang Depok / Bekasi"
+                    class="flex-1 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onclick="addNewGbpProfile()"
+                    class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0"
+                  >
+                    Simpan Profil
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nama Reviewer & Rating Bintang -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="reviewerName" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Nama Reviewer / Klien <span class="text-slate-400 font-normal normal-case">(Opsional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="reviewerName"
+                  placeholder="Contoh: Ibu Rina Wijaya"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Rating Bintang <span class="text-rose-500">*</span>
+                </label>
+                <div id="starRatingContainer" class="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2">
+                  <!-- Stars rendered by JS -->
+                  <span id="ratingText" class="ml-auto text-xs font-bold text-amber-600">5 / 5 Bintang</span>
+                </div>
+                <input type="hidden" id="ratingValue" value="5" />
+              </div>
+            </div>
+
+            <!-- No. Work Order & Tanggal Klaim -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="workOrder" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  No. Work Order / Kode Kunjungan <span class="text-slate-400 font-normal normal-case">(Opsional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="workOrder"
+                  placeholder="Contoh: WO-2026-1184"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label for="claimDate" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Tanggal Klaim / Periode Laporan <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  id="claimDate"
+                  onchange="updatePeriodPreview()"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+                />
+                <p class="text-[11px] text-slate-500 mt-1">
+                  Masuk rekap bulan: <strong id="periodPreviewLabel" class="text-brand-700">-</strong>
+                </p>
+              </div>
+            </div>
+
+            <!-- Upload / Drag & Drop Screenshot Review -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Screenshot Bukti Google Review (JPG / PNG) <span class="text-rose-500">*</span>
+              </label>
+
+              <div
+                id="dropZone"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleDrop(event)"
+                class="relative border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50/70 rounded-2xl p-5 text-center transition cursor-pointer"
+              >
+                <input
+                  type="file"
+                  id="screenshotInput"
+                  accept="image/jpeg,image/png,image/webp"
+                  onchange="handleFileSelect(event)"
+                  class="hidden"
+                />
+
+                <div id="uploadPrompt" onclick="document.getElementById('screenshotInput').click()" class="space-y-2.5 py-2">
+                  <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-slate-800">
+                      Tarik & lepas screenshot di sini, atau ketuk tombol di bawah
+                    </p>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      Format JPG, PNG, atau WEBP • Otomatis dikompresi agar hemat penyimpanan
+                    </p>
+                  </div>
+                  <div class="pt-1">
+                    <button
+                      type="button"
+                      onclick="event.stopPropagation(); document.getElementById('screenshotInput').click();"
+                      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-brand-500 hover:bg-brand-50/50 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition cursor-pointer"
+                    >
+                      <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
+                      <span>Pilih / Ambil Screenshot</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Preview Gambar Sebelum Submit -->
+                <div id="uploadPreviewBox" class="hidden space-y-3">
+                  <div class="relative inline-block max-w-full">
+                    <img
+                      id="uploadPreviewImg"
+                      src=""
+                      alt="Pratinjau Screenshot Review"
+                      class="max-h-64 w-auto mx-auto rounded-xl border border-slate-200 shadow-sm object-contain bg-white"
+                    />
+                  </div>
+                  <div class="flex flex-wrap items-center justify-center gap-2">
+                    <span id="uploadFileName" class="text-xs font-medium text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-200 truncate max-w-[220px]"></span>
+                    <button
+                      type="button"
+                      onclick="document.getElementById('screenshotInput').click()"
+                      class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+                    >
+                      Ganti Gambar
+                    </button>
+                    <button
+                      type="button"
+                      onclick="clearUploadedScreenshot()"
+                      class="px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-xs font-semibold text-rose-700 cursor-pointer"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Catatan Tambahan -->
+            <div>
+              <label for="claimNotes" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Catatan Singkat Kunjungan <span class="text-slate-400 font-normal normal-case">(Opsional)</span>
+              </label>
+              <input
+                type="text"
+                id="claimNotes"
+                placeholder="Contoh: Treatment anti rayap & gel kecoa selesai, klien puas"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <p class="text-xs text-slate-500">
+                Status awal klaim: <span class="font-semibold text-amber-700">Menunggu Validasi</span>
+              </p>
+              <button
+                type="submit"
+                id="submitClaimBtn"
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-emerald-600 hover:from-brand-700 hover:to-emerald-700 text-white text-sm font-bold shadow-md shadow-brand-600/20 transition cursor-pointer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Kirim Klaim Review</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Recent Submissions & Quick Tips -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- Panduan Klaim Cepat -->
+          <div class="bg-gradient-to-br from-brand-900 to-slate-900 text-white rounded-2xl p-5 shadow-sm">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-brand-200 mb-2.5">
+              Panduan Singkat Teknisi
+            </h3>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-200">
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <span>Pastikan screenshot menampilkan nama pengulas, rating bintang, dan profil GBP Insekta yang sesuai.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <span>Cantumkan No. Work Order bila ada agar proses verifikasi admin bulanan lebih cepat.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <span>Reward bulanan dihitung dari klaim berstatus <strong>Valid / Disetujui</strong>.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Klaim Terakhir Masuk -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
+            <div class="flex items-center justify-between mb-3.5">
+              <h3 class="text-sm font-bold text-slate-900">Klaim Terbaru Masuk</h3>
+              <button
+                type="button"
+                onclick="switchTab('rekap')"
+                class="text-xs font-semibold text-brand-700 hover:underline cursor-pointer"
+              >
+                Lihat Semua →
+              </button>
+            </div>
+            <div id="recentClaimsList" class="space-y-3 max-h-[420px] overflow-y-auto custom-scrollbar pr-1">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: REKAP LAPORAN BULANAN & PERFORMA TEKNISI          -->
+    <!-- ========================================================= -->
+    <section id="viewRekap" class="hidden space-y-6 animate-fade-in">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Filter Rekap Laporan & Performa</h2>
+            <p class="text-xs text-slate-500">Saring data berdasarkan bulan laporan, teknisi, profil GBP, atau status validasi.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onclick="resetFilters()"
+              class="px-3 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+            >
+              Reset Filter
+            </button>
+            <button
+              type="button"
+              onclick="exportFilteredCsv()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-2xs cursor-pointer"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Export CSV</span>
+            </button>
+            <button
+              type="button"
+              onclick="copyExecutiveSummary()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shadow-2xs cursor-pointer"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span>Salin Ringkasan</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div>
+            <label for="filterPeriod" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Bulan / Periode
+            </label>
+            <select id="filterPeriod" onchange="renderRekapView()" class="w-full rounded-xl border border-slate-300 bg-slate-50/60 px-3 py-2 text-sm text-slate-800 focus:bg-white focus:border-brand-600 outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label for="filterTech" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Nama Teknisi
+            </label>
+            <select id="filterTech" onchange="renderRekapView()" class="w-full rounded-xl border border-slate-300 bg-slate-50/60 px-3 py-2 text-sm text-slate-800 focus:bg-white focus:border-brand-600 outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label for="filterGbp" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Profil GBP / Cabang
+            </label>
+            <select id="filterGbp" onchange="renderRekapView()" class="w-full rounded-xl border border-slate-300 bg-slate-50/60 px-3 py-2 text-sm text-slate-800 focus:bg-white focus:border-brand-600 outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label for="filterStatus" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Status Validasi
+            </label>
+            <select id="filterStatus" onchange="renderRekapView()" class="w-full rounded-xl border border-slate-300 bg-slate-50/60 px-3 py-2 text-sm text-slate-800 focus:bg-white focus:border-brand-600 outline-none">
+              <option value="ALL">Semua Status</option>
+              <option value="PENDING">Menunggu Validasi</option>
+              <option value="VALID">Valid / Disetujui</option>
+              <option value="REJECTED">Ditolak</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Klaim Dikirim</span>
+            <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">#</span>
+          </div>
+          <p id="kpiTotalClaims" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">0</p>
+          <p id="kpiTotalClaimsSub" class="text-xs text-slate-500 mt-1">Rata-rata rating: -</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-emerald-200/80 p-5 shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Ulasan Valid</span>
+            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+          </div>
+          <p id="kpiValidClaims" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-2">0</p>
+          <p id="kpiValidRateSub" class="text-xs text-slate-500 mt-1">Tingkat validasi: 0%</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-amber-200/80 p-5 shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Menunggu Validasi</span>
+            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </span>
+          </div>
+          <p id="kpiPendingClaims" class="text-2xl sm:text-3xl font-extrabold text-amber-700 mt-2">0</p>
+          <p id="kpiRejectedSub" class="text-xs text-slate-500 mt-1">Ditolak: 0 klaim</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-brand-700 to-emerald-800 text-white rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-100">Estimasi Reward</span>
+            <span class="w-8 h-8 rounded-lg bg-white/15 text-white flex items-center justify-center font-bold text-xs">Rp</span>
+          </div>
+          <p id="kpiEstimatedReward" class="text-2xl sm:text-3xl font-extrabold mt-2">Rp 0</p>
+          <p id="kpiRewardTariffSub" class="text-xs text-brand-100 mt-1">Tarif: Rp 20.000 / ulasan valid</p>
+        </div>
+      </div>
+
+      <!-- Summary Tables: Per Teknisi & Per Profil GBP -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Tabel Rekap Per Teknisi -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">Rekap Performa per Teknisi</h3>
+              <p class="text-xs text-slate-500">Akumulasi klaim, ulasan valid, dan estimasi reward sesuai filter.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3 px-4">Teknisi</th>
+                  <th class="py-3 px-3 text-center">Klaim</th>
+                  <th class="py-3 px-3 text-center">Valid</th>
+                  <th class="py-3 px-4 text-right">Estimasi Reward</th>
+                </tr>
+              </thead>
+              <tbody id="techSummaryBody" class="divide-y divide-slate-100 text-sm">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tabel Rekap Per Profil GBP -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">Rekap per Profil GBP / Cabang</h3>
+              <p class="text-xs text-slate-500">Sebaran ulasan masuk dan tervalidasi di setiap cabang/profil.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3 px-4">Profil GBP</th>
+                  <th class="py-3 px-3 text-center">Total Klaim</th>
+                  <th class="py-3 px-3 text-center">Valid</th>
+                  <th class="py-3 px-4 text-center">Pending</th>
+                </tr>
+              </thead>
+              <tbody id="gbpSummaryBody" class="divide-y divide-slate-100 text-sm">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Daftar Klaim Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900">Rincian Daftar Klaim Review</h3>
+            <p class="text-xs text-slate-500">Klik thumbnail screenshot untuk memperbesar bukti ulasan.</p>
+          </div>
+          <span id="filteredCountBadge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 self-start sm:self-auto">
+            0 data ditampilkan
+          </span>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse min-w-[780px]">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <th class="py-3 px-4">Bukti</th>
+                <th class="py-3 px-4">Tanggal & WO</th>
+                <th class="py-3 px-4">Teknisi</th>
+                <th class="py-3 px-4">Profil GBP</th>
+                <th class="py-3 px-3 text-center">Rating</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="detailClaimsBody" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 3: MODE ADMIN / VALIDASI & PENGATURAN                -->
+    <!-- ========================================================= -->
+    <section id="viewAdmin" class="hidden space-y-6 animate-fade-in">
+      <!-- Admin Settings Card -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-5">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Pengaturan Reward & Profil GBP</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Atur tarif insentif per ulasan valid dan kelola daftar profil GBP.</p>
+          </div>
+
+          <!-- Tarif Reward -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <label for="tariffInput" class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+              Tarif Reward per Ulasan Valid (Rp)
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                id="tariffInput"
+                min="0"
+                step="1000"
+                class="flex-1 rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 outline-none"
+              />
+              <button
+                type="button"
+                onclick="saveTariffSetting()"
+                class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0"
+              >
+                Simpan Tarif
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Contoh: Rp 20.000 per ulasan yang sudah berstatus Valid / Disetujui.
+            </p>
+          </div>
+
+          <!-- Kelola Profil GBP -->
+          <div class="space-y-3 pt-3 border-t border-slate-100">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+              Daftar Profil Google Business Profile
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="adminNewGbpInput"
+                placeholder="Nama profil GBP baru..."
+                class="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-800 focus:border-brand-600 outline-none"
+              />
+              <button
+                type="button"
+                onclick="addGbpFromAdmin()"
+                class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition cursor-pointer shrink-0"
+              >
+                + Tambah
+              </button>
+            </div>
+
+            <div id="adminGbpList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Data Utility Buttons -->
+          <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <button
+              type="button"
+              onclick="restoreSampleData()"
+              class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+            >
+              Pulihkan Data Contoh
+            </button>
+            <button
+              type="button"
+              onclick="toggleClearAllConfirm()"
+              class="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-semibold text-rose-700 cursor-pointer"
+            >
+              Reset Semua Data
+            </button>
+          </div>
+
+          <!-- Inline Confirmation Box (No window.confirm) -->
+          <div id="clearAllConfirmBox" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 space-y-2.5 animate-fade-in">
+            <p class="text-xs font-semibold text-rose-800">
+              Yakin ingin menghapus seluruh data klaim di browser ini? Tindakan tidak dapat dibatalkan.
+            </p>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                onclick="executeClearAllData()"
+                class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer"
+              >
+                Ya, Hapus Semua
+              </button>
+              <button
+                type="button"
+                onclick="toggleClearAllConfirm(false)"
+                class="px-3 py-1.5 rounded-lg bg-white border border-rose-200 text-slate-700 text-xs font-semibold cursor-pointer"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Antrian Validasi Admin -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900">Antrian Validasi Klaim Review</h3>
+              <p class="text-xs text-slate-500">Setujui ulasan valid agar masuk hitungan reward teknisi, atau tolak dengan alasan jelas.</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                id="adminFilterPendingBtn"
+                onclick="setAdminQueueFilter('PENDING')"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition"
+              >
+                Menunggu
+              </button>
+              <button
+                type="button"
+                id="adminFilterAllBtn"
+                onclick="setAdminQueueFilter('ALL')"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition"
+              >
+                Semua Klaim
+              </button>
+            </div>
+          </div>
+
+          <div id="adminQueueList" class="space-y-4 max-h-[680px] overflow-y-auto custom-scrollbar pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>Insekta — Sistem Klaim & Rekap Google Review Teknisi</span>
+      <span>Data tersimpan otomatis di peramban lokal (localStorage)</span>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL PRATINJAU SCREENSHOT & DETAIL KLAIM                 -->
+  <!-- ========================================================= -->
+  <div id="imageModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/75 backdrop-blur-xs p-4" onclick="closeImageModal(event)">
+    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 animate-fade-in" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+        <div>
+          <h4 id="modalTitle" class="text-sm sm:text-base font-bold text-slate-900">Pratinjau Bukti Screenshot</h4>
+          <p id="modalSubtitle" class="text-xs text-slate-500"></p>
+        </div>
+        <button
+          type="button"
+          onclick="closeImageModal()"
+          class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer"
+          aria-label="Tutup modal"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 bg-slate-100 flex items-center justify-center max-h-[70vh] overflow-auto">
+        <img id="modalImage" src="" alt="Bukti Screenshot Review" class="max-h-[60vh] w-auto rounded-xl shadow-md object-contain bg-white" />
+      </div>
+
+      <div id="modalFooterMeta" class="px-5 py-3.5 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL RINGKASAN LAPORAN (UNTUK SALIN CEPAT)               -->
+  <!-- ========================================================= -->
+  <div id="summaryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4" onclick="closeSummaryModal(event)">
+    <div class="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 animate-fade-in" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+        <h4 class="text-sm sm:text-base font-bold text-slate-900">Ringkasan Laporan Bulanan</h4>
+        <button
+          type="button"
+          onclick="closeSummaryModal()"
+          class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-5 space-y-3">
+        <p class="text-xs text-slate-500">Teks ringkasan siap salin ke WhatsApp, catatan laporan, atau slide presentasi:</p>
+        <textarea
+          id="summaryTextArea"
+          rows="11"
+          readonly
+          class="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs font-mono text-slate-800 focus:outline-none"
+        ></textarea>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            onclick="copySummaryTextarea()"
+            class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold cursor-pointer"
+          >
+            Salin ke Clipboard
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                              -->
+  <!-- ========================================================= -->
+  <script>
+    const STORAGE_KEYS = {
+      CLAIMS: 'insekta_gbp_claims_v1',
+      GBP_PROFILES: 'insekta_gbp_profiles_v1',
+      TECHNICIANS: 'insekta_gbp_technicians_v1',
+      TARIFF: 'insekta_gbp_tariff_v1',
+      ROLE: 'insekta_gbp_role_v1',
+      TAB: 'insekta_gbp_tab_v1'
+    };
+
+    const DEFAULT_GBP_PROFILES = [
+      'Insekta Cabang 1',
+      'Insekta Cabang 2',
+      'Insekta Cabang 3',
+      'Insekta Cabang 4'
+    ];
+
+    const DEFAULT_TECHNICIANS = [
+      'Rizky Pratama',
+      'Dimas Saputra',
+      'Fajar Hidayat',
+      'Hendra Kusuma'
+    ];
+
+    const DEFAULT_TARIFF = 20000;
+
+    // SVG placeholder data URI untuk data contoh awal
+    function createSampleScreenshotDataUrl(title, reviewer, stars, gbp, wo) {
+      const starString = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+          <rect width="640" height="420" rx="20" fill="#f8fafc"/>
+          <rect x="24" y="24" width="592" height="372" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+          <rect x="24" y="24" width="592" height="64" rx="14" fill="#0f766e"/>
+          <rect x="24" y="72" width="592" height="16" fill="#0f766e"/>
+          <text x="48" y="62" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Google Review — ${escapeXml(gbp)}</text>
+          <circle cx="84" cy="144" r="28" fill="#ccfbf1"/>
+          <text x="84" y="152" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#0f766e" text-anchor="middle">${escapeXml((reviewer || 'K').charAt(0).toUpperCase())}</text>
+          <text x="128" y="138" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#0f172a">${escapeXml(reviewer || 'Klien Terverifikasi')}</text>
+          <text x="128" y="164" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Ulasan Asli Google Maps • ${escapeXml(wo || 'WO-INSEKTA')}</text>
+          <text x="48" y="216" font-family="Arial, sans-serif" font-size="28" fill="#f59e0b">${starString}</text>
+          <text x="195" y="213" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#334155">Baru saja</text>
+          <text x="48" y="258" font-family="Arial, sans-serif" font-size="18" fill="#1e293b">"${escapeXml(title)}"</text>
+          <rect x="48" y="294" width="544" height="72" rx="10" fill="#f0fdfa" stroke="#99f6e4"/>
+          <text x="66" y="324" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#0f766e">Balasan dari Pemilik Bisnis (${escapeXml(gbp)})</text>
+          <text x="66" y="348" font-family="Arial, sans-serif" font-size="13" fill="#334155">Terima kasih atas kepercayaannya kepada layanan Insekta.</text>
+        </svg>
+      `.trim();
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    function escapeXml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+
+    function getDefaultClaims() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const d1 = `${yyyy}-${mm}-05`;
+      const d2 = `${yyyy}-${mm}-11`;
+      const d3 = `${yyyy}-${mm}-18`;
+      const d4 = `${yyyy}-${mm}-23`;
+
+      return [
+        {
+          id: 'CLM-' + (Date.now() - 400000),
+          technician: 'Rizky Pratama',
+          gbpProfile: 'Insekta Cabang 1',
+          reviewerName: 'Bapak Andi Setiawan',
+          rating: 5,
+          workOrder: 'WO-1041',
+          claimDate: d1,
+          period: d1.slice(0, 7),
+          notes: 'Penanganan rayap area carport & kusen, teknisi rapi dan komunikatif.',
+          status: 'VALID',
+          rejectionReason: '',
+          screenshotDataUrl: createSampleScreenshotDataUrl(
+            'Teknisi datang tepat waktu, rayap langsung ditangani tuntas.',
+            'Bapak Andi Setiawan',
+            5,
+            'Insekta Cabang 1',
+            'WO-1041'
+          ),
+          fileName: 'review-andi-cabang1.png',
+          createdAt: new Date(Date.now() - 400000000).toISOString()
+        },
+        {
+          id: 'CLM-' + (Date.now() - 300000),
+          technician: 'Dimas Saputra',
+          gbpProfile: 'Insekta Cabang 2',
+          reviewerName: 'Ibu Ratna Sari',
+          rating: 5,
+          workOrder: 'WO-1058',
+          claimDate: d2,
+          period: d2.slice(0, 7),
+          notes: 'Treatment gel kecoa & trapping area dapur aman untuk anak.',
+          status: 'VALID',
+          rejectionReason: '',
+          screenshotDataUrl: createSampleScreenshotDataUrl(
+            'Pelayanan ramah, tidak berbau menyengat, kecoa berkurang drastis.',
+            'Ibu Ratna Sari',
+            5,
+            'Insekta Cabang 2',
+            'WO-1058'
+          ),
+          fileName: 'review-ratna-cabang2.png',
+          createdAt: new Date(Date.now() - 300000000).toISOString()
+        },
+        {
+          id: 'CLM-' + (Date.now() - 200000),
+          technician: 'Fajar Hidayat',
+          gbpProfile: 'Insekta Cabang 3',
+          reviewerName: 'Bapak Hendro Gunawan',
+          rating: 5,
+          workOrder: 'WO-1079',
+          claimDate: d3,
+          period: d3.slice(0, 7),
+          notes: 'Inspeksi menyeluruh & edukasi pencegahan hama rumah.',
+          status: 'PENDING',
+          rejectionReason: '',
+          screenshotDataUrl: createSampleScreenshotDataUrl(
+            'Penjelasannya detail dan solutif sekali untuk masalah hama di rumah.',
+            'Bapak Hendro Gunawan',
+            5,
+            'Insekta Cabang 3',
+            'WO-1079'
+          ),
+          fileName: 'review-hendro-cabang3.png',
+          createdAt: new Date(Date.now() - 200000000).toISOString()
+        },
+        {
+          id: 'CLM-' + (Date.now() - 100000),
+          technician: 'Hendra Kusuma',
+          gbpProfile: 'Insekta Cabang 4',
+          reviewerName: 'Mbak Dita Permata',
+          rating: 4,
+          workOrder: 'WO-1092',
+          claimDate: d4,
+          period: d4.slice(0, 7),
+          notes: 'Klaim ulasan kunjungan rutin.',
+          status: 'PENDING',
+          rejectionReason: '',
+          screenshotDataUrl: createSampleScreenshotDataUrl(
+            'Kerja cepat dan bersih, sangat membantu untuk perawatan bulanan.',
+            'Mbak Dita Permata',
+            4,
+            'Insekta Cabang 4',
+            'WO-1092'
+          ),
+          fileName: 'review-dita-cabang4.png',
+          createdAt: new Date(Date.now() - 100000000).toISOString()
+        }
+      ];
+    }
+
+    // Application State
+    let state = {
+      role: 'teknisi',
+      tab: 'claim',
+      claims: [],
+      gbpProfiles: [],
+      technicians: [],
+      tariff: DEFAULT_TARIFF,
+      uploadedScreenshot: null,
+      adminQueueFilter: 'PENDING'
+    };
+
+    function safeGetStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw !== null ? JSON.parse(raw) : fallback;
+      } catch (err) {
+        console.warn('Gagal membaca localStorage:', key, err);
+        return fallback;
+      }
+    }
+
+    function safeSetStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (err) {
+        console.warn('Gagal menyimpan ke localStorage:', key, err);
+        showToast('Peringatan: Kapasitas penyimpanan browser penuh. Gunakan gambar yang lebih kecil.', 'warning');
+      }
+    }
+
+    function initApp() {
+      state.role = safeGetStorage(STORAGE_KEYS.ROLE, 'teknisi');
+      state.tab = safeGetStorage(STORAGE_KEYS.TAB, 'claim');
+      state.gbpProfiles = safeGetStorage(STORAGE_KEYS.GBP_PROFILES, DEFAULT_GBP_PROFILES);
+      state.technicians = safeGetStorage(STORAGE_KEYS.TECHNICIANS, DEFAULT_TECHNICIANS);
+      state.tariff = Number(safeGetStorage(STORAGE_KEYS.TARIFF, DEFAULT_TARIFF)) || DEFAULT_TARIFF;
+
+      const savedClaims = safeGetStorage(STORAGE_KEYS.CLAIMS, null);
+      if (!Array.isArray(savedClaims)) {
+        state.claims = getDefaultClaims();
+        safeSetStorage(STORAGE_KEYS.CLAIMS, state.claims);
+      } else {
+        state.claims = savedClaims;
+      }
+
+      // Set default tanggal ke hari ini
+      const todayStr = getTodayDateString();
+      document.getElementById('claimDate').value = todayStr;
+      updatePeriodPreview();
+
+      // Render komponen star rating
+      renderStarRating(5);
+
+      // Populate selects & UI
+      populateTechnicianSelect();
+      populateGbpSelects();
+      document.getElementById('tariffInput').value = state.tariff;
+      updateTariffLabels();
+
+      // Bind form submit
+      document.getElementById('claimForm').addEventListener('submit', handleClaimSubmit);
+
+      // Apply role & active tab
+      applyRoleUI();
+      applyTabUI();
+      renderAllViews();
+    }
+
+    function getTodayDateString() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatPeriodLabel(periodStr) {
+      if (!periodStr || !/^\d{4}-\d{2}$/.test(periodStr)) return periodStr || '-';
+      const [year, month] = periodStr.split('-').map(Number);
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      return `${months[month - 1] || month} ${year}`;
+    }
+
+    function formatRupiah(amount) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0
+      }).format(Number(amount) || 0);
+    }
+
+    function updatePeriodPreview() {
+      const dateVal = document.getElementById('claimDate').value;
+      const period = dateVal ? dateVal.slice(0, 7) : getTodayDateString().slice(0, 7);
+      document.getElementById('periodPreviewLabel').textContent = formatPeriodLabel(period);
+    }
+
+    function updateTariffLabels() {
+      document.getElementById('formRewardRateLabel').textContent = formatRupiah(state.tariff);
+      document.getElementById('kpiRewardTariffSub').textContent = `Tarif: ${formatRupiah(state.tariff)} / ulasan valid`;
+    }
+
+    // =========================================================
+    // ROLE & TAB MANAGEMENT
+    // =========================================================
+    function switchRole(role) {
+      state.role = role;
+      safeSetStorage(STORAGE_KEYS.ROLE, role);
+      applyRoleUI();
+      renderRekapView();
+      renderAdminView();
+      showToast(
+        role === 'admin'
+          ? 'Beralih ke Mode Admin / Supervisor (Akses validasi & pengaturan aktif)'
+          : 'Beralih ke Mode Teknisi (Fokus klaim ulasan & pantau rekap)',
+        'info'
+      );
+    }
+
+    function applyRoleUI() {
+      const btnTeknisi = document.getElementById('btnRoleTeknisi');
+      const btnAdmin = document.getElementById('btnRoleAdmin');
+      const banner = document.getElementById('roleBanner');
+      const bannerIcon = document.getElementById('roleBannerIcon');
+      const bannerTitle = document.getElementById('roleBannerTitle');
+      const bannerDesc = document.getElementById('roleBannerDesc');
+
+      if (state.role === 'admin') {
+        btnAdmin.className = 'flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-brand-700 text-white shadow-2xs transition-all cursor-pointer';
+        btnTeknisi.className = 'flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+
+        banner.className = 'rounded-2xl p-4 border border-brand-200 bg-brand-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in';
+        bannerIcon.className = 'w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0';
+        bannerIcon.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+        bannerTitle.className = 'text-sm font-bold text-brand-900';
+        bannerTitle.textContent = 'Mode Aktif: Admin / Supervisor';
+        bannerDesc.textContent = 'Anda dapat memvalidasi klaim teknisi (Valid / Tolak), mengatur tarif reward bulanan, mengelola profil GBP, dan mengekspor laporan.';
+      } else {
+        btnTeknisi.className = 'flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-white text-brand-800 border border-slate-200 shadow-2xs transition-all cursor-pointer';
+        btnAdmin.className = 'flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+
+        banner.className = 'rounded-2xl p-4 border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in';
+        bannerIcon.className = 'w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0';
+        bannerIcon.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
+        bannerTitle.className = 'text-sm font-bold text-slate-900';
+        bannerTitle.textContent = 'Mode Aktif: Teknisi Lapangan';
+        bannerDesc.textContent = 'Unggah screenshot Google Review per profil GBP setelah selesai kunjungan dan pantau rekap klaim serta estimasi reward bulanan.';
+      }
+    }
+
+    function switchTab(tabName) {
+      state.tab = tabName;
+      safeSetStorage(STORAGE_KEYS.TAB, tabName);
+      applyTabUI();
+      renderAllViews();
+    }
+
+    function applyTabUI() {
+      const tabs = {
+        claim: { btn: document.getElementById('tabClaim'), view: document.getElementById('viewClaim') },
+        rekap: { btn: document.getElementById('tabRekap'), view: document.getElementById('viewRekap') },
+        admin: { btn: document.getElementById('tabAdmin'), view: document.getElementById('viewAdmin') }
+      };
+
+      Object.entries(tabs).forEach(([key, obj]) => {
+        const isActive = state.tab === key;
+        if (isActive) {
+          obj.btn.className = 'tab-btn inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-700 transition-colors whitespace-nowrap cursor-pointer';
+          obj.view.classList.remove('hidden');
+        } else {
+          obj.btn.className = 'tab-btn inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-colors whitespace-nowrap cursor-pointer';
+          obj.view.classList.add('hidden');
+        }
+      });
+    }
+
+    // =========================================================
+    // TECHNICIAN & GBP PROFILES HELPERS
+    // =========================================================
+    function populateTechnicianSelect() {
+      const select = document.getElementById('technicianSelect');
+      const currentVal = select.value;
+      select.innerHTML = `<option value="">-- Pilih Teknisi --</option>`;
+
+      state.technicians.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+
+      if (currentVal && state.technicians.includes(currentVal)) {
+        select.value = currentVal;
+      } else if (state.technicians.length > 0 && !document.getElementById('technicianCustom').value.trim()) {
+        select.value = state.technicians[0];
+      }
+    }
+
+    function handleTechnicianSelectChange() {
+      const select = document.getElementById('technicianSelect');
+      const customInput = document.getElementById('technicianCustom');
+      if (select.value) {
+        customInput.value = '';
+      }
+    }
+
+    function handleCustomTechnicianInput() {
+      const customInput = document.getElementById('technicianCustom');
+      const select = document.getElementById('technicianSelect');
+      if (customInput.value.trim().length > 0) {
+        select.value = '';
+      }
+    }
+
+    function populateGbpSelects() {
+      const gbpSelect = document.getElementById('gbpSelect');
+      const prevSelected = gbpSelect.value;
+      gbpSelect.innerHTML = '';
+
+      state.gbpProfiles.forEach(profile => {
+        const opt = document.createElement('option');
+        opt.value = profile;
+        opt.textContent = profile;
+        gbpSelect.appendChild(opt);
+      });
+
+      if (prevSelected && state.gbpProfiles.includes(prevSelected)) {
+        gbpSelect.value = prevSelected;
+      } else if (state.gbpProfiles.length > 0) {
+        gbpSelect.value = state.gbpProfiles[0];
+      }
+
+      renderAdminGbpList();
+    }
+
+    function toggleNewGbpBox() {
+      const box = document.getElementById('newGbpBox');
+      box.classList.toggle('hidden');
+      if (!box.classList.contains('hidden')) {
+        document.getElementById('newGbpNameInput').focus();
+      }
+    }
+
+    function addNewGbpProfile() {
+      const input = document.getElementById('newGbpNameInput');
+      const name = input.value.trim();
+      if (!name) {
+        showToast('Silakan masukkan nama profil GBP / cabang terlebih dahulu.', 'warning');
+        return;
+      }
+      if (!state.gbpProfiles.some(p => p.toLowerCase() === name.toLowerCase())) {
+        state.gbpProfiles.push(name);
+        safeSetStorage(STORAGE_KEYS.GBP_PROFILES, state.gbpProfiles);
+        populateGbpSelects();
+      }
+      document.getElementById('gbpSelect').value = name;
+      input.value = '';
+      document.getElementById('newGbpBox').classList.add('hidden');
+      populateFilterDropdowns();
+      showToast(`Profil "${name}" ditambahkan dan dipilih.`, 'success');
+    }
+
+    function addGbpFromAdmin() {
+      const input = document.getElementById('adminNewGbpInput');
+      const name = input.value.trim();
+      if (!name) {
+        showToast('Nama profil GBP tidak boleh kosong.', 'warning');
+        return;
+      }
+      if (state.gbpProfiles.some(p => p.toLowerCase() === name.toLowerCase())) {
+        showToast('Profil GBP tersebut sudah terdaftar.', 'info');
+        return;
+      }
+      state.gbpProfiles.push(name);
+      safeSetStorage(STORAGE_KEYS.GBP_PROFILES, state.gbpProfiles);
+      input.value = '';
+      populateGbpSelects();
+      populateFilterDropdowns();
+      renderRekapView();
+      showToast(`Profil GBP "${name}" berhasil ditambahkan.`, 'success');
+    }
+
+    function removeGbpProfile(profileName) {
+      if (state.gbpProfiles.length <= 1) {
+        showToast('Minimal harus ada 1 profil GBP terdaftar.', 'warning');
+        return;
+      }
+      state.gbpProfiles = state.gbpProfiles.filter(p => p !== profileName);
+      safeSetStorage(STORAGE_KEYS.GBP_PROFILES, state.gbpProfiles);
+      populateGbpSelects();
+      populateFilterDropdowns();
+      renderRekapView();
+      showToast(`Profil "${profileName}" dihapus dari daftar pilihan.`, 'info');
+    }
+
+    function renderAdminGbpList() {
+      const container = document.getElementById('adminGbpList');
+      if (!container) return;
+      container.innerHTML = state.gbpProfiles.map(profile => {
+        const claimCount = state.claims.filter(c => c.gbpProfile === profile).length;
+        return `
+          <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+            <div class="min-w-0">
+              <p class="font-semibold text-slate-800 truncate">${escapeHtml(profile)}</p>
+              <p class="text-[11px] text-slate-500">${claimCount} klaim tercatat</p>
+            </div>
+            <button
+              type="button"
+              onclick="removeGbpProfile('${escapeJs(profile)}')"
+              class="px-2.5 py-1 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold cursor-pointer shrink-0"
+              title="Hapus profil"
+            >
+              Hapus
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================
+    // STAR RATING WIDGET
+    // =========================================================
+    function renderStarRating(selectedRating) {
+      const rating = Math.min(5, Math.max(1, Number(selectedRating) || 5));
+      document.getElementById('ratingValue').value = rating;
+      document.getElementById('ratingText').textContent = `${rating} / 5 Bintang`;
+
+      const container = document.getElementById('starRatingContainer');
+      const ratingTextEl = document.getElementById('ratingText');
+
+      // Remove existing buttons
+      container.querySelectorAll('button').forEach(btn => btn.remove());
+
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => renderStarRating(i);
+        btn.className = 'p-1 rounded-lg hover:bg-amber-50 transition cursor-pointer focus:outline-none';
+        btn.setAttribute('aria-label', `Pilih ${i} bintang`);
+
+        const filled = i <= rating;
+        btn.innerHTML = `
+          <svg class="w-5 h-5 ${filled ? 'text-amber-400 fill-amber-400' : 'text-slate-300 fill-none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        `;
+        container.insertBefore(btn, ratingTextEl);
+      }
+    }
+
+    // =========================================================
+    // SCREENSHOT UPLOAD, DRAG & DROP, & COMPRESSION
+    // =========================================================
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById('dropZone');
+      dz.classList.add('border-brand-600', 'bg-brand-50/70');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById('dropZone');
+      dz.classList.remove('border-brand-600', 'bg-brand-50/70');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById('dropZone');
+      dz.classList.remove('border-brand-600', 'bg-brand-50/70');
+
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        processImageFile(files[0]);
+      }
+    }
+
+    function handleFileSelect(e) {
+      const files = e.target?.files;
+      if (files && files.length > 0) {
+        processImageFile(files[0]);
+      }
+    }
+
+    function processImageFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Harap pilih file gambar (JPG, PNG, atau WEBP).', 'warning');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          // Kompresi ringan agar localStorage tetap aman dan cepat
+          const maxWidth = 1080;
+          const maxHeight = 1440;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          state.uploadedScreenshot = {
+            dataUrl: compressedDataUrl,
+            fileName: file.name || 'screenshot-review.jpg'
+          };
+
+          document.getElementById('uploadPreviewImg').src = compressedDataUrl;
+          document.getElementById('uploadFileName').textContent = state.uploadedScreenshot.fileName;
+          document.getElementById('uploadPrompt').classList.add('hidden');
+          document.getElementById('uploadPreviewBox').classList.remove('hidden');
+        };
+        img.onerror = function () {
+          showToast('Gagal membaca gambar. Coba file gambar lainnya.', 'warning');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearUploadedScreenshot() {
+      state.uploadedScreenshot = null;
+      document.getElementById('screenshotInput').value = '';
+      document.getElementById('uploadPreviewImg').src = '';
+      document.getElementById('uploadFileName').textContent = '';
+      document.getElementById('uploadPreviewBox').classList.add('hidden');
+      document.getElementById('uploadPrompt').classList.remove('hidden');
+    }
+
+    // =========================================================
+    // FORM SUBMISSION
+    // =========================================================
+    function handleClaimSubmit(e) {
+      e.preventDefault();
+
+      const customTech = document.getElementById('technicianCustom').value.trim();
+      const selectedTech = document.getElementById('technicianSelect').value.trim();
+      const technician = customTech || selectedTech;
+
+      const gbpProfile = document.getElementById('gbpSelect').value.trim();
+      const reviewerName = document.getElementById('reviewerName').value.trim();
+      const rating = Number(document.getElementById('ratingValue').value) || 5;
+      const workOrder = document.getElementById('workOrder').value.trim();
+      const claimDate = document.getElementById('claimDate').value || getTodayDateString();
+      const notes = document.getElementById('claimNotes').value.trim();
+
+      if (!technician) {
+        showToast('Silakan pilih atau ketik nama teknisi terlebih dahulu.', 'warning');
+        return;
+      }
+      if (!gbpProfile) {
+        showToast('Silakan pilih profil Google Business Profile / cabang.', 'warning');
+        return;
+      }
+      if (!state.uploadedScreenshot || !state.uploadedScreenshot.dataUrl) {
+        showToast('Silakan unggah screenshot bukti Google Review terlebih dahulu.', 'warning');
+        return;
+      }
+
+      // Simpan nama teknisi baru ke daftar jika belum ada
+      if (!state.technicians.some(t => t.toLowerCase() === technician.toLowerCase())) {
+        state.technicians.push(technician);
+        safeSetStorage(STORAGE_KEYS.TECHNICIANS, state.technicians);
+        populateTechnicianSelect();
+      }
+
+      const period = claimDate.slice(0, 7);
+      const newClaim = {
+        id: 'CLM-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        technician,
+        gbpProfile,
+        reviewerName: reviewerName || 'Klien Umum',
+        rating,
+        workOrder: workOrder || '-',
+        claimDate,
+        period,
+        notes,
+        status: 'PENDING',
+        rejectionReason: '',
+        screenshotDataUrl: state.uploadedScreenshot.dataUrl,
+        fileName: state.uploadedScreenshot.fileName,
+        createdAt: new Date().toISOString()
+      };
+
+      state.claims.unshift(newClaim);
+      safeSetStorage(STORAGE_KEYS.CLAIMS, state.claims);
+
+      // Reset sebagian field form (pertahankan tanggal & profil GBP agar input beruntun cepat)
+      document.getElementById('reviewerName').value = '';
+      document.getElementById('workOrder').value = '';
+      document.getElementById('claimNotes').value = '';
+      renderStarRating(5);
+      clearUploadedScreenshot();
+
+      populateFilterDropdowns();
+      renderAllViews();
+
+      showToast(`Klaim review dari ${technician} (${gbpProfile}) berhasil dikirim!`, 'success');
+    }
+
+    // =========================================================
+    // RENDERING VIEWS
+    // =========================================================
+    function renderAllViews() {
+      updatePendingBadge();
+      renderRecentClaims();
+      populateFilterDropdowns();
+      renderRekapView();
+      renderAdminView();
+    }
+
+    function updatePendingBadge() {
+      const pendingCount = state.claims.filter(c => c.status === 'PENDING').length;
+      const badge = document.getElementById('pendingBadge');
+      badge.textContent = pendingCount;
+      if (pendingCount > 0) {
+        badge.className = 'ml-1 px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800';
+      } else {
+        badge.className = 'ml-1 px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800';
+      }
+    }
+
+    function renderStatusBadge(status, rejectionReason = '') {
+      if (status === 'VALID') {
+        return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Valid
+        </span>`;
+      }
+      if (status === 'REJECTED') {
+        return `<div class="space-y-1">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Ditolak
+          </span>
+          ${rejectionReason ? `<p class="text-[11px] text-rose-600 max-w-[180px] leading-tight">${escapeHtml(rejectionReason)}</p>` : ''}
+        </div>`;
+      }
+      return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Menunggu
+      </span>`;
+    }
+
+    function renderRecentClaims() {
+      const container = document.getElementById('recentClaimsList');
+      const recent = state.claims.slice(0, 6);
+
+      if (recent.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada klaim review yang dikirim.</p>`;
+        return;
+      }
+
+      container.innerHTML = recent.map(claim => `
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-slate-50/50 transition">
+          <img
+            src="${claim.screenshotDataUrl}"
+            alt="Bukti ${escapeHtml(claim.technician)}"
+            onclick="openImageModal('${escapeJs(claim.id)}')"
+            class="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-white shrink-0 cursor-pointer hover:opacity-90"
+            title="Klik untuk memperbesar"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(claim.technician)}</p>
+              ${renderStatusBadge(claim.status)}
+            </div>
+            <p class="text-xs text-slate-600 truncate">${escapeHtml(claim.gbpProfile)} • ${'★'.repeat(claim.rating)}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(claim.claimDate)} • ${escapeHtml(claim.workOrder)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================
+    // REKAP & FILTER LOGIC
+    // =========================================================
+    function populateFilterDropdowns() {
+      const periodSelect = document.getElementById('filterPeriod');
+      const techSelect = document.getElementById('filterTech');
+      const gbpSelect = document.getElementById('filterGbp');
+
+      const prevPeriod = periodSelect.value;
+      const prevTech = techSelect.value;
+      const prevGbp = gbpSelect.value;
+
+      const periodsSet = new Set(state.claims.map(c => c.period).filter(Boolean));
+      periodsSet.add(getTodayDateString().slice(0, 7));
+      const periods = Array.from(periodsSet).sort().reverse();
+
+      periodSelect.innerHTML = `<option value="ALL">Semua Bulan / Periode</option>` + periods.map(p =>
+        `<option value="${p}">${formatPeriodLabel(p)} (${p})</option>`
+      ).join('');
+
+      const techsSet = new Set([...state.technicians, ...state.claims.map(c => c.technician).filter(Boolean)]);
+      const techs = Array.from(techsSet).sort((a, b) => a.localeCompare(b, 'id'));
+      techSelect.innerHTML = `<option value="ALL">Semua Teknisi</option>` + techs.map(t =>
+        `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`
+      ).join('');
+
+      const gbpsSet = new Set([...state.gbpProfiles, ...state.claims.map(c => c.gbpProfile).filter(Boolean)]);
+      const gbps = Array.from(gbpsSet).sort((a, b) => a.localeCompare(b, 'id'));
+      gbpSelect.innerHTML = `<option value="ALL">Semua Profil GBP</option>` + gbps.map(g =>
+        `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`
+      ).join('');
+
+      if (prevPeriod && Array.from(periodSelect.options).some(o => o.value === prevPeriod)) {
+        periodSelect.value = prevPeriod;
+      } else {
+        periodSelect.value = 'ALL';
+      }
+
+      if (prevTech && Array.from(techSelect.options).some(o => o.value === prevTech)) {
+        techSelect.value = prevTech;
+      } else {
+        techSelect.value = 'ALL';
+      }
+
+      if (prevGbp && Array.from(gbpSelect.options).some(o => o.value === prevGbp)) {
+        gbpSelect.value = prevGbp;
+      } else {
+        gbpSelect.value = 'ALL';
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('filterPeriod').value = 'ALL';
+      document.getElementById('filterTech').value = 'ALL';
+      document.getElementById('filterGbp').value = 'ALL';
+      document.getElementById('filterStatus').value = 'ALL';
+      renderRekapView();
+      showToast('Filter rekap dikembalikan ke semua data.', 'info');
+    }
+
+    function getFilteredClaims() {
+      const period = document.getElementById('filterPeriod').value;
+      const tech = document.getElementById('filterTech').value;
+      const gbp = document.getElementById('filterGbp').value;
+      const status = document.getElementById('filterStatus').value;
+
+      return state.claims.filter(c => {
+        if (period !== 'ALL' && c.period !== period) return false;
+        if (tech !== 'ALL' && c.technician !== tech) return false;
+        if (gbp !== 'ALL' && c.gbpProfile !== gbp) return false;
+        if (status !== 'ALL' && c.status !== status) return false;
+        return true;
+      });
+    }
+
+    function renderRekapView() {
+      const filtered = getFilteredClaims();
+
+      const totalCount = filtered.length;
+      const validClaims = filtered.filter(c => c.status === 'VALID');
+      const pendingClaims = filtered.filter(c => c.status === 'PENDING');
+      const rejectedClaims = filtered.filter(c => c.status === 'REJECTED');
+
+      const validCount = validClaims.length;
+      const pendingCount = pendingClaims.length;
+      const rejectedCount = rejectedClaims.length;
+
+      const avgRating = totalCount > 0
+        ? (filtered.reduce((acc, c) => acc + (Number(c.rating) || 0), 0) / totalCount).toFixed(1)
+        : '-';
+
+      const validRate = totalCount > 0 ? Math.round((validCount / totalCount) * 100) : 0;
+      const estimatedReward = validCount * state.tariff;
+
+      document.getElementById('kpiTotalClaims').textContent = totalCount;
+      document.getElementById('kpiTotalClaimsSub').textContent = `Rata-rata rating: ${avgRating} ★`;
+
+      document.getElementById('kpiValidClaims').textContent = validCount;
+      document.getElementById('kpiValidRateSub').textContent = `Tingkat validasi: ${validRate}%`;
+
+      document.getElementById('kpiPendingClaims').textContent = pendingCount;
+      document.getElementById('kpiRejectedSub').textContent = `Ditolak: ${rejectedCount} klaim`;
+
+      document.getElementById('kpiEstimatedReward').textContent = formatRupiah(estimatedReward);
+      document.getElementById('kpiRewardTariffSub').textContent = `Tarif: ${formatRupiah(state.tariff)} / ulasan valid`;
+
+      document.getElementById('filteredCountBadge').textContent = `${totalCount} data ditampilkan`;
+
+      // Tabel Rekap Per Teknisi
+      const techMap = new Map();
+      filtered.forEach(c => {
+        const key = c.technician || 'Tanpa Nama';
+        if (!techMap.has(key)) {
+          techMap.set(key, { technician: key, total: 0, valid: 0, pending: 0 });
+        }
+        const entry = techMap.get(key);
+        entry.total += 1;
+        if (c.status === 'VALID') entry.valid += 1;
+        if (c.status === 'PENDING') entry.pending += 1;
+      });
+
+      const techRows = Array.from(techMap.values()).sort((a, b) => b.valid - a.valid || b.total - a.total);
+      const techBody = document.getElementById('techSummaryBody');
+
+      if (techRows.length === 0) {
+        techBody.innerHTML = `<tr><td colspan="4" class="py-6 px-4 text-center text-xs text-slate-500">Tidak ada data teknisi pada filter ini.</td></tr>`;
+      } else {
+        techBody.innerHTML = techRows.map(row => `
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3 px-4 font-semibold text-slate-900">${escapeHtml(row.technician)}</td>
+            <td class="py-3 px-3 text-center text-slate-700">${row.total}</td>
+            <td class="py-3 px-3 text-center font-bold text-emerald-700">${row.valid}</td>
+            <td class="py-3 px-4 text-right font-bold text-brand-800">${formatRupiah(row.valid * state.tariff)}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Tabel Rekap Per Profil GBP
+      const gbpMap = new Map();
+      filtered.forEach(c => {
+        const key = c.gbpProfile || 'Profil Tidak Diketahui';
+        if (!gbpMap.has(key)) {
+          gbpMap.set(key, { gbpProfile: key, total: 0, valid: 0, pending: 0 });
+        }
+        const entry = gbpMap.get(key);
+        entry.total += 1;
+        if (c.status === 'VALID') entry.valid += 1;
+        if (c.status === 'PENDING') entry.pending += 1;
+      });
+
+      const gbpRows = Array.from(gbpMap.values()).sort((a, b) => b.total - a.total);
+      const gbpBody = document.getElementById('gbpSummaryBody');
+
+      if (gbpRows.length === 0) {
+        gbpBody.innerHTML = `<tr><td colspan="4" class="py-6 px-4 text-center text-xs text-slate-500">Tidak ada data profil GBP pada filter ini.</td></tr>`;
+      } else {
+        gbpBody.innerHTML = gbpRows.map(row => `
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3 px-4 font-semibold text-slate-900">${escapeHtml(row.gbpProfile)}</td>
+            <td class="py-3 px-3 text-center text-slate-700">${row.total}</td>
+            <td class="py-3 px-3 text-center font-bold text-emerald-700">${row.valid}</td>
+            <td class="py-3 px-4 text-center font-semibold text-amber-700">${row.pending}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Detail Daftar Klaim
+      const detailBody = document.getElementById('detailClaimsBody');
+      if (filtered.length === 0) {
+        detailBody.innerHTML = `<tr><td colspan="7" class="py-8 px-4 text-center text-xs text-slate-500">Belum ada klaim yang sesuai dengan kriteria filter.</td></tr>`;
+        return;
+      }
+
+      detailBody.innerHTML = filtered.map(c => {
+        const quickActions = state.role === 'admin'
+          ? `
+            <div class="inline-flex items-center justify-end gap-1.5">
+              <button
+                type="button"
+                onclick="validateClaim('${escapeJs(c.id)}', 'VALID')"
+                class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+              >
+                Valid
+              </button>
+              <button
+                type="button"
+                onclick="openRejectInline('${escapeJs(c.id)}')"
+                class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold cursor-pointer"
+              >
+                Tolak
+              </button>
+            </div>
+          `
+          : `
+            <button
+              type="button"
+              onclick="openImageModal('${escapeJs(c.id)}')"
+              class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+            >
+              Lihat Bukti
+            </button>
+          `;
+
+        return `
+          <tr class="hover:bg-slate-50/70 align-top">
+            <td class="py-3 px-4">
+              <img
+                src="${c.screenshotDataUrl}"
+                alt="Bukti ${escapeHtml(c.technician)}"
+                onclick="openImageModal('${escapeJs(c.id)}')"
+                class="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-white cursor-pointer hover:opacity-90"
+              />
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap">
+              <p class="font-semibold text-slate-800 text-xs">${escapeHtml(c.claimDate)}</p>
+              <p class="text-[11px] text-slate-500">WO: ${escapeHtml(c.workOrder)}</p>
+            </td>
+            <td class="py-3 px-4">
+              <p class="font-bold text-slate-900 text-xs sm:text-sm">${escapeHtml(c.technician)}</p>
+              <p class="text-[11px] text-slate-500">Klien: ${escapeHtml(c.reviewerName)}</p>
+            </td>
+            <td class="py-3 px-4">
+              <p class="font-semibold text-slate-800 text-xs sm:text-sm">${escapeHtml(c.gbpProfile)}</p>
+              ${c.notes ? `<p class="text-[11px] text-slate-500 max-w-[200px] truncate">${escapeHtml(c.notes)}</p>` : ''}
+            </td>
+            <td class="py-3 px-3 text-center whitespace-nowrap">
+              <span class="text-xs font-bold text-amber-600">${c.rating} ★</span>
+            </td>
+            <td class="py-3 px-4">
+              ${renderStatusBadge(c.status, c.rejectionReason)}
+            </td>
+            <td class="py-3 px-4 text-right whitespace-nowrap">
+              ${quickActions}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =========================================================
+    // ADMIN VALIDATION & SETTINGS
+    // =========================================================
+    function setAdminQueueFilter(mode) {
+      state.adminQueueFilter = mode;
+      renderAdminView();
+    }
+
+    function renderAdminView() {
+      const btnPending = document.getElementById('adminFilterPendingBtn');
+      const btnAll = document.getElementById('adminFilterAllBtn');
+
+      if (state.adminQueueFilter === 'PENDING') {
+        btnPending.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200 cursor-pointer';
+        btnAll.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer';
+      } else {
+        btnAll.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-100 text-brand-900 border border-brand-200 cursor-pointer';
+        btnPending.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer';
+      }
+
+      const listEl = document.getElementById('adminQueueList');
+      const items = state.adminQueueFilter === 'PENDING'
+        ? state.claims.filter(c => c.status === 'PENDING')
+        : state.claims;
+
+      if (items.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center py-10 px-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
+            <p class="text-sm font-semibold text-slate-700">
+              ${state.adminQueueFilter === 'PENDING' ? 'Tidak ada klaim yang menunggu validasi.' : 'Belum ada data klaim.'}
+            </p>
+            <p class="text-xs text-slate-500 mt-1">Semua klaim telah diproses atau belum ada kiriman baru.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = items.map(c => `
+        <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/40 hover:bg-white transition space-y-3">
+          <div class="flex flex-col sm:flex-row gap-4">
+            <img
+              src="${c.screenshotDataUrl}"
+              alt="Bukti ${escapeHtml(c.technician)}"
+              onclick="openImageModal('${escapeJs(c.id)}')"
+              class="w-full sm:w-28 h-28 rounded-xl object-cover border border-slate-200 bg-white shrink-0 cursor-pointer hover:opacity-90"
+              title="Klik untuk memperbesar"
+            />
+            <div class="flex-1 min-w-0 space-y-1.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">${escapeHtml(c.technician)}</h4>
+                  <p class="text-xs font-semibold text-brand-700">${escapeHtml(c.gbpProfile)}</p>
+                </div>
+                ${renderStatusBadge(c.status, c.rejectionReason)}
+              </div>
+
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                <span>Tanggal: <strong>${escapeHtml(c.claimDate)}</strong></span>
+                <span>WO: <strong>${escapeHtml(c.workOrder)}</strong></span>
+                <span>Rating: <strong class="text-amber-600">${c.rating} ★</strong></span>
+                <span>Klien: <strong>${escapeHtml(c.reviewerName)}</strong></span>
+              </div>
+
+              ${c.notes ? `<p class="text-xs text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-100">Catatan: ${escapeHtml(c.notes)}</p>` : ''}
+            </div>
+          </div>
+
+          <!-- Action Bar -->
+          <div class="pt-2.5 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <span>Reward jika valid: <strong class="text-emerald-700">${formatRupiah(state.tariff)}</strong></span>
+              <button
+                type="button"
+                onclick="openImageModal('${escapeJs(c.id)}')"
+                class="text-brand-700 font-semibold hover:underline cursor-pointer"
+              >
+                Perbesar Gambar
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onclick="validateClaim('${escapeJs(c.id)}', 'VALID')"
+                class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs cursor-pointer"
+              >
+                Tandai Valid
+              </button>
+              <button
+                type="button"
+                onclick="toggleRejectBox('${escapeJs(c.id)}')"
+                class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold cursor-pointer"
+              >
+                Tolak Klaim
+              </button>
+            </div>
+          </div>
+
+          <!-- Inline Rejection Reason Input -->
+          <div id="rejectBox-${escapeHtml(c.id)}" class="hidden pt-2 flex flex-col sm:flex-row gap-2 animate-fade-in">
+            <input
+              type="text"
+              id="rejectReasonInput-${escapeHtml(c.id)}"
+              value="${escapeHtml(c.rejectionReason || '')}"
+              placeholder="Alasan penolakan (contoh: screenshot buram / profil GBP tidak sesuai)"
+              class="flex-1 rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-none"
+            />
+            <button
+              type="button"
+              onclick="confirmRejectClaim('${escapeJs(c.id)}')"
+              class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer shrink-0"
+            >
+              Simpan Penolakan
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openRejectInline(claimId) {
+      if (state.tab !== 'admin') {
+        switchTab('admin');
+      }
+      setTimeout(() => {
+        const box = document.getElementById(`rejectBox-${claimId}`);
+        if (box) {
+          box.classList.remove('hidden');
+          const input = document.getElementById(`rejectReasonInput-${claimId}`);
+          if (input) input.focus();
+        }
+      }, 60);
+    }
+
+    function toggleRejectBox(claimId) {
+      const box = document.getElementById(`rejectBox-${claimId}`);
+      if (!box) return;
+      box.classList.toggle('hidden');
+      if (!box.classList.contains('hidden')) {
+        const input = document.getElementById(`rejectReasonInput-${claimId}`);
+        if (input) input.focus();
+      }
+    }
+
+    function confirmRejectClaim(claimId) {
+      const input = document.getElementById(`rejectReasonInput-${claimId}`);
+      const reason = input ? input.value.trim() : '';
+      validateClaim(claimId, 'REJECTED', reason || 'Bukti ulasan belum memenuhi syarat validasi.');
+    }
+
+    function validateClaim(claimId, newStatus, rejectionReason = '') {
+      const idx = state.claims.findIndex(c => c.id === claimId);
+      if (idx === -1) return;
+
+      state.claims[idx].status = newStatus;
+      state.claims[idx].rejectionReason = newStatus === 'REJECTED' ? rejectionReason : '';
+      safeSetStorage(STORAGE_KEYS.CLAIMS, state.claims);
+
+      renderAllViews();
+      showToast(
+        newStatus === 'VALID'
+          ? `Klaim ${state.claims[idx].technician} ditandai VALID.`
+          : `Klaim ${state.claims[idx].technician} ditolak.`,
+        newStatus === 'VALID' ? 'success' : 'info'
+      );
+    }
+
+    function saveTariffSetting() {
+      const val = Number(document.getElementById('tariffInput').value);
+      if (Number.isNaN(val) || val < 0) {
+        showToast('Masukkan nominal tarif reward yang valid (0 atau lebih).', 'warning');
+        return;
+      }
+      state.tariff = Math.round(val);
+      safeSetStorage(STORAGE_KEYS.TARIFF, state.tariff);
+      updateTariffLabels();
+      renderRekapView();
+      renderAdminView();
+      showToast(`Tarif reward diperbarui menjadi ${formatRupiah(state.tariff)} per ulasan valid.`, 'success');
+    }
+
+    function restoreSampleData() {
+      state.claims = getDefaultClaims();
+      state.gbpProfiles = [...DEFAULT_GBP_PROFILES];
+      state.technicians = [...DEFAULT_TECHNICIANS];
+      state.tariff = DEFAULT_TARIFF;
+
+      safeSetStorage(STORAGE_KEYS.CLAIMS, state.claims);
+      safeSetStorage(STORAGE_KEYS.GBP_PROFILES, state.gbpProfiles);
+      safeSetStorage(STORAGE_KEYS.TECHNICIANS, state.technicians);
+      safeSetStorage(STORAGE_KEYS.TARIFF, state.tariff);
+
+      document.getElementById('tariffInput').value = state.tariff;
+      updateTariffLabels();
+      populateTechnicianSelect();
+      populateGbpSelects();
+      renderAllViews();
+      showToast('Data contoh awal berhasil dipulihkan.', 'success');
+    }
+
+    function toggleClearAllConfirm(forceShow = null) {
+      const box = document.getElementById('clearAllConfirmBox');
+      if (forceShow === false) {
+        box.classList.add('hidden');
+      } else if (forceShow === true) {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.toggle('hidden');
+      }
+    }
+
+    function executeClearAllData() {
+      state.claims = [];
+      safeSetStorage(STORAGE_KEYS.CLAIMS, state.claims);
+      toggleClearAllConfirm(false);
+      renderAllViews();
+      showToast('Seluruh data klaim telah dihapus.', 'info');
+    }
+
+    // =========================================================
+    // EXPORT CSV & COPY EXECUTIVE SUMMARY
+    // =========================================================
+    function exportFilteredCsv() {
+      const filtered = getFilteredClaims();
+      if (filtered.length === 0) {
+        showToast('Tidak ada data untuk di-export pada filter saat ini.', 'warning');
+        return;
+      }
+
+      const headers = [
+        'ID Klaim',
+        'Tanggal',
+        'Periode',
+        'Teknisi',
+        'Profil GBP',
+        'Nama Reviewer',
+        'Rating',
+        'No Work Order',
+        'Status',
+        'Alasan Penolakan',
+        'Estimasi Reward (Rp)',
+        'Catatan'
+      ];
+
+      const rows = filtered.map(c => {
+        const reward = c.status === 'VALID' ? state.tariff : 0;
+        const statusLabel = c.status === 'VALID' ? 'Valid' : (c.status === 'REJECTED' ? 'Ditolak' : 'Menunggu');
+        return [
+          c.id,
+          c.claimDate,
+          c.period,
+          c.technician,
+          c.gbpProfile,
+          c.reviewerName,
+          c.rating,
+          c.workOrder,
+          statusLabel,
+          c.rejectionReason || '',
+          reward,
+          c.notes || ''
+        ].map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',');
+      });
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      const periodFilter = document.getElementById('filterPeriod').value;
+      link.href = url;
+      link.download = `rekap-google-review-insekta-${periodFilter === 'ALL' ? 'semua' : periodFilter}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast(`File CSV (${filtered.length} baris) berhasil diunduh.`, 'success');
+    }
+
+    function copyExecutiveSummary() {
+      const filtered = getFilteredClaims();
+      const periodFilter = document.getElementById('filterPeriod').value;
+      const periodText = periodFilter === 'ALL' ? 'Semua Periode' : formatPeriodLabel(periodFilter);
+
+      const total = filtered.length;
+      const valid = filtered.filter(c => c.status === 'VALID').length;
+      const pending = filtered.filter(c => c.status === 'PENDING').length;
+      const rejected = filtered.filter(c => c.status === 'REJECTED').length;
+      const reward = valid * state.tariff;
+
+      const techMap = new Map();
+      filtered.forEach(c => {
+        if (!techMap.has(c.technician)) {
+          techMap.set(c.technician, { total: 0, valid: 0 });
+        }
+        const item = techMap.get(c.technician);
+        item.total += 1;
+        if (c.status === 'VALID') item.valid += 1;
+      });
+
+      const techLines = Array.from(techMap.entries())
+        .map(([name, stat]) => `- ${name}: ${stat.valid} valid / ${stat.total} klaim (${formatRupiah(stat.valid * state.tariff)})`)
+        .join('\n');
+
+      const summaryText = [
+        `REKAP GOOGLE REVIEW TEKNISI — INSEKTA`,
+        `Periode: ${periodText}`,
+        `----------------------------------------`,
+        `Total Klaim Dikirim : ${total}`,
+        `Ulasan Valid        : ${valid}`,
+        `Menunggu Validasi   : ${pending}`,
+        `Ditolak             : ${rejected}`,
+        `Tarif / Ulasan Valid: ${formatRupiah(state.tariff)}`,
+        `Estimasi Reward     : ${formatRupiah(reward)}`,
+        `----------------------------------------`,
+        `Rincian per Teknisi:`,
+        techLines || '- Tidak ada data'
+      ].join('\n');
+
+      document.getElementById('summaryTextArea').value = summaryText;
+      const modal = document.getElementById('summaryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function copySummaryTextarea() {
+      const textarea = document.getElementById('summaryTextArea');
+      if (!textarea) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textarea.value).then(() => {
+          showToast('Ringkasan laporan berhasil disalin ke clipboard.', 'success');
+        }).catch(() => {
+          textarea.select();
+          document.execCommand('copy');
+          showToast('Ringkasan laporan disalin.', 'success');
+        });
+      } else {
+        textarea.select();
+        document.execCommand('copy');
+        showToast('Ringkasan laporan disalin.', 'success');
+      }
+    }
+
+    function closeSummaryModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      const modal = document.getElementById('summaryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // =========================================================
+    // IMAGE MODAL
+    // =========================================================
+    function openImageModal(claimId) {
+      const claim = state.claims.find(c => c.id === claimId);
+      if (!claim) return;
+
+      document.getElementById('modalTitle').textContent = `Bukti Review — ${claim.technician}`;
+      document.getElementById('modalSubtitle').textContent = `${claim.gbpProfile} • ${claim.claimDate} • WO: ${claim.workOrder}`;
+      document.getElementById('modalImage').src = claim.screenshotDataUrl;
+
+      document.getElementById('modalFooterMeta').innerHTML = `
+        <div class="flex flex-wrap items-center gap-3">
+          <span>Rating: <strong class="text-amber-600">${claim.rating} / 5 ★</strong></span>
+          <span>Klien: <strong>${escapeHtml(claim.reviewerName)}</strong></span>
+          <span>File: <strong>${escapeHtml(claim.fileName || 'screenshot.jpg')}</strong></span>
+        </div>
+        <div>${renderStatusBadge(claim.status, claim.rejectionReason)}</div>
+      `;
+
+      const modal = document.getElementById('imageModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeImageModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      const modal = document.getElementById('imageModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // =========================================================
+    // TOAST NOTIFICATION & SECURITY HELPERS
+    // =========================================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+
+      const styles = {
+        success: 'bg-emerald-900 text-white border-emerald-700',
+        warning: 'bg-amber-900 text-white border-amber-700',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 animate-fade-in ${styles[type] || styles.info}`;
+      toast.innerHTML = `
+        <span>${escapeHtml(message)}</span>
+        <button type="button" onclick="this.parentElement.remove()" class="text-white/70 hover:text-white font-bold cursor-pointer">✕</button>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+      }, 3600);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeJs(str) {
+      return String(str ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"');
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

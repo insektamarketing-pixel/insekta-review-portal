@@ -27,9 +27,6 @@
       }
     };
   </script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -44,884 +41,828 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="app"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
-
-    const STORAGE_KEYS = {
-      USERS: 'insekta_rt_users_v1',
-      REPORTS: 'insekta_rt_reports_v1',
-      REWARD_CFG: 'insekta_rt_reward_cfg_v1',
-      REWARD_PAYOUTS: 'insekta_rt_reward_payouts_v1',
-      SESSION: 'insekta_rt_session_v1'
+  <script>
+    const KEYS = {
+      REPORTS: 'insekta_rt_reports_v2',
+      REWARD_CFG: 'insekta_rt_reward_cfg_v2',
+      REWARD_PAYOUTS: 'insekta_rt_reward_payouts_v2',
+      SESSION: 'insekta_rt_session_v2'
     };
 
-    const CURRENT_YYYY_MM = new Date().toISOString().slice(0, 7);
-    const TODAY_STR = new Date().toISOString().slice(0, 10);
+    const THIS_MONTH = new Date().toISOString().slice(0, 7);
+    const TODAY = new Date().toISOString().slice(0, 10);
 
-    const DEMO_USERS = [
+    const USERS = [
       { id: 'TEK-001', username: 'budi.santoso', password: '123', name: 'Budi Santoso', role: 'teknisi', branch: 'Jakarta Pusat' },
       { id: 'TEK-002', username: 'andi.pratama', password: '123', name: 'Andi Pratama', role: 'teknisi', branch: 'Bekasi & Cikarang' },
       { id: 'TEK-003', username: 'dedi.kurniawan', password: '123', name: 'Dedi Kurniawan', role: 'teknisi', branch: 'Tangerang' },
       { id: 'ADM-01', username: 'admin', password: '123', name: 'Rina Marketing (Admin)', role: 'admin', branch: 'Head Office' }
     ];
 
-    function makeSampleImage(title, subtitle, dateStr) {
-      const c = document.createElement('canvas');
-      c.width = 480;
-      c.height = 600;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 480, 600);
-      ctx.fillStyle = '#034276';
-      ctx.fillRect(0, 0, 480, 72);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillText('Google Review — PT Insekta Fokustama', 20, 43);
-      ctx.fillStyle = '#f1f5f9';
-      ctx.fillRect(24, 100, 432, 360);
-      ctx.fillStyle = '#FEBA12';
-      ctx.font = 'bold 28px sans-serif';
-      ctx.fillText('★★★★★', 44, 150);
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 20px sans-serif';
-      ctx.fillText(title, 44, 195);
-      ctx.fillStyle = '#475569';
-      ctx.font = '15px sans-serif';
-      ctx.fillText(`Layanan: ${subtitle}`, 44, 230);
-      ctx.fillText(`Tanggal Ulasan: ${dateStr}`, 44, 258);
-      ctx.fillText('Pelayanan teknisi rapi, tepat waktu,', 44, 315);
-      ctx.fillText('dan memberikan penjelasan jelas.', 44, 340);
-      ctx.fillStyle = '#034276';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillText('BUKTI SCREENSHOT DEMO • INSEKTA REVIEW TRACKER', 44, 520);
-      return c.toDataURL('image/jpeg', 0.75);
-    }
-
-    function getInitialReports() {
-      return [
-        {
-          id: 'RPT-2026-001',
-          technicianId: 'TEK-001',
-          technicianName: 'Budi Santoso',
-          reviewDate: TODAY_STR,
-          customerName: 'PT Maju Bersama Logistics',
-          serviceType: 'Anti Rayap',
-          branch: 'Jakarta Pusat',
-          screenshot: makeSampleImage('PT Maju Bersama Logistics', 'Anti Rayap', TODAY_STR),
-          imageHash: 'demo_hash_001',
-          status: 'Disetujui',
-          rejectionReason: '',
-          internalNote: 'Ulasan terverifikasi.',
-          createdAt: `${TODAY_STR}T08:30:00Z`,
-          statusHistory: [
-            { status: 'Menunggu Verifikasi', by: 'Budi Santoso', note: 'Laporan dikirim teknisi' },
-            { status: 'Disetujui', by: 'Rina Marketing (Admin)', note: 'Disetujui' }
-          ]
-        },
-        {
-          id: 'RPT-2026-002',
-          technicianId: 'TEK-001',
-          technicianName: 'Budi Santoso',
-          reviewDate: TODAY_STR,
-          customerName: 'Restoran Sederhana Menteng',
-          serviceType: 'Pest Control',
-          branch: 'Jakarta Pusat',
-          screenshot: makeSampleImage('Restoran Sederhana Menteng', 'Pest Control', TODAY_STR),
-          imageHash: 'demo_hash_002',
-          status: 'Menunggu Verifikasi',
-          rejectionReason: '',
-          internalNote: '',
-          createdAt: `${TODAY_STR}T10:00:00Z`,
-          statusHistory: [{ status: 'Menunggu Verifikasi', by: 'Budi Santoso', note: 'Laporan dikirim teknisi' }]
-        },
-        {
-          id: 'RPT-2026-003',
-          technicianId: 'TEK-002',
-          technicianName: 'Andi Pratama',
-          reviewDate: `${CURRENT_YYYY_MM}-08`,
-          customerName: 'PT Kawasan Industri Jababeka',
-          serviceType: 'Fumigasi',
-          branch: 'Bekasi & Cikarang',
-          screenshot: makeSampleImage('PT Kawasan Industri Jababeka', 'Fumigasi', `${CURRENT_YYYY_MM}-08`),
-          imageHash: 'demo_hash_003',
-          status: 'Disetujui',
-          rejectionReason: '',
-          internalNote: 'Valid.',
-          createdAt: `${CURRENT_YYYY_MM}-08T11:00:00Z`,
-          statusHistory: [
-            { status: 'Menunggu Verifikasi', by: 'Andi Pratama', note: 'Laporan dikirim teknisi' },
-            { status: 'Disetujui', by: 'Rina Marketing (Admin)', note: 'Disetujui' }
-          ]
-        },
-        {
-          id: 'RPT-2026-004',
-          technicianId: 'TEK-003',
-          technicianName: 'Dedi Kurniawan',
-          reviewDate: `${CURRENT_YYYY_MM}-04`,
-          customerName: 'Klinik Sehat BSD',
-          serviceType: 'Disinfeksi',
-          branch: 'Tangerang',
-          screenshot: makeSampleImage('Klinik Sehat BSD', 'Disinfeksi', `${CURRENT_YYYY_MM}-04`),
-          imageHash: 'demo_hash_004',
-          status: 'Ditolak',
-          rejectionReason: 'Screenshot tidak terbaca',
-          internalNote: 'Harap kirim ulang foto yang lebih jelas.',
-          createdAt: `${CURRENT_YYYY_MM}-04T13:00:00Z`,
-          statusHistory: [
-            { status: 'Menunggu Verifikasi', by: 'Dedi Kurniawan', note: 'Laporan dikirim teknisi' },
-            { status: 'Ditolak', by: 'Rina Marketing (Admin)', note: 'Screenshot tidak terbaca' }
-          ]
-        }
-      ];
-    }
-
-    const DEFAULT_REWARD_CFG = {
-      period: CURRENT_YYYY_MM,
-      rewardPerApproved: 25000,
-      minApprovedForBonus: 5,
-      bonusAmount: 100000,
-      criteriaDescription: 'Reward dihitung berdasarkan jumlah laporan Google Review yang disetujui dan memiliki data lengkap (bukan berdasarkan rating bintang atau sentimen ulasan).'
-    };
-
-    const REJECTION_REASONS = [
+    const SERVICES = ['Anti Rayap', 'Pest Control', 'Fumigasi', 'Disinfeksi', 'Lainnya'];
+    const BRANCHES = ['Jakarta Pusat', 'Jakarta Selatan', 'Bekasi & Cikarang', 'Tangerang', 'Depok & Bogor'];
+    const REASONS = [
       'Screenshot tidak terbaca',
       'Screenshot bukan ulasan Google',
       'Screenshot duplikat',
       'Informasi laporan tidak sesuai'
     ];
 
-    const SERVICE_TYPES = ['Anti Rayap', 'Pest Control', 'Fumigasi', 'Disinfeksi', 'Lainnya'];
-    const BRANCHES = ['Jakarta Pusat', 'Jakarta Selatan', 'Bekasi & Cikarang', 'Tangerang', 'Depok & Bogor'];
-
-    const formatIDR = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
-
-    function compressAndHash(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const maxW = 850;
-            const w = img.width > maxW ? maxW : img.width;
-            const h = img.width > maxW ? Math.round((img.height * maxW) / img.width) : img.height;
-            canvas.width = w;
-            canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
-            let hash = 0;
-            const sample = dataUrl.slice(0, 3500) + dataUrl.slice(-3500) + file.size;
-            for (let i = 0; i < sample.length; i++) {
-              hash = ((hash << 5) - hash) + sample.charCodeAt(i);
-              hash |= 0;
-            }
-            resolve({ dataUrl, imageHash: `img_${Math.abs(hash)}_${file.size}` });
-          };
-          img.onerror = reject;
-          img.src = ev.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    function sampleImg(customer, service, dateStr) {
+      const c = document.createElement('canvas');
+      c.width = 460;
+      c.height = 560;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 460, 560);
+      ctx.fillStyle = '#034276';
+      ctx.fillRect(0, 0, 460, 68);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 17px sans-serif';
+      ctx.fillText('Google Review • PT Insekta Fokustama', 18, 40);
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fillRect(20, 90, 420, 340);
+      ctx.fillStyle = '#FEBA12';
+      ctx.font = 'bold 26px sans-serif';
+      ctx.fillText('★★★★★', 38, 136);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 19px sans-serif';
+      ctx.fillText(customer, 38, 178);
+      ctx.fillStyle = '#475569';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Layanan: ' + service, 38, 210);
+      ctx.fillText('Tanggal: ' + dateStr, 38, 236);
+      ctx.fillText('Teknisi datang tepat waktu, pekerjaan rapi,', 38, 290);
+      ctx.fillText('dan penjelasan sangat membantu.', 38, 314);
+      ctx.fillStyle = '#034276';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('BUKTI SCREENSHOT DEMO • INSEKTA REVIEW TRACKER', 38, 490);
+      return c.toDataURL('image/jpeg', 0.75);
     }
 
-    function StatusBadge({ status }) {
-      const cls = {
-        'Menunggu Verifikasi': 'bg-amber-100 text-amber-800 border-amber-300',
-        'Disetujui': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-        'Ditolak': 'bg-rose-100 text-rose-800 border-rose-300'
-      }[status] || 'bg-slate-100 text-slate-700 border-slate-200';
-      return <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${cls}`}>{status}</span>;
-    }
-
-    function App() {
-      const [users] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || DEMO_USERS);
-      const [reports, setReports] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || getInitialReports());
-      const [rewardCfg, setRewardCfg] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEYS.REWARD_CFG)) || DEFAULT_REWARD_CFG);
-      const [rewardPayouts, setRewardPayouts] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEYS.REWARD_PAYOUTS)) || {});
-      const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION)) || null);
-
-      useEffect(() => { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }, [users]);
-      useEffect(() => { localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports)); }, [reports]);
-      useEffect(() => { localStorage.setItem(STORAGE_KEYS.REWARD_CFG, JSON.stringify(rewardCfg)); }, [rewardCfg]);
-      useEffect(() => { localStorage.setItem(STORAGE_KEYS.REWARD_PAYOUTS, JSON.stringify(rewardPayouts)); }, [rewardPayouts]);
-      useEffect(() => {
-        if (currentUser) localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
-        else localStorage.removeItem(STORAGE_KEYS.SESSION);
-      }, [currentUser]);
-
-      const [tab, setTab] = useState('dashboard');
-      const [toast, setToast] = useState(null);
-      const notify = (message, type = 'info') => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 4000);
-      };
-
-      const [roleInput, setRoleInput] = useState('teknisi');
-      const [idInput, setIdInput] = useState('TEK-001');
-      const [passInput, setPassInput] = useState('123');
-      const [loginErr, setLoginErr] = useState('');
-
-      const [reviewDate, setReviewDate] = useState(TODAY_STR);
-      const [customerName, setCustomerName] = useState('');
-      const [serviceType, setServiceType] = useState('Anti Rayap');
-      const [branch, setBranch] = useState('Jakarta Pusat');
-      const [previewUrl, setPreviewUrl] = useState('');
-      const [imgHash, setImgHash] = useState('');
-      const [formErr, setFormErr] = useState('');
-      const [dupWarn, setDupWarn] = useState('');
-      const camRef = useRef(null);
-      const galRef = useRef(null);
-
-      const [activeReport, setActiveReport] = useState(null);
-      const [rejectOpen, setRejectOpen] = useState(false);
-      const [reasonChoice, setReasonChoice] = useState(REJECTION_REASONS[0]);
-      const [customReason, setCustomReason] = useState('');
-      const [noteInput, setNoteInput] = useState('');
-
-      const [fMonth, setFMonth] = useState(CURRENT_YYYY_MM);
-      const [fTech, setFTech] = useState('ALL');
-      const [fStatus, setFStatus] = useState('ALL');
-      const [fService, setFService] = useState('ALL');
-      const [recapMonth, setRecapMonth] = useState(CURRENT_YYYY_MM);
-      const [sortDesc, setSortDesc] = useState(true);
-
-      const loginUser = (e) => {
-        e.preventDefault();
-        setLoginErr('');
-        const hit = users.find(
-          (u) =>
-            u.role === roleInput &&
-            (u.id.toLowerCase() === idInput.trim().toLowerCase() || u.username.toLowerCase() === idInput.trim().toLowerCase()) &&
-            u.password === passInput
-        );
-        if (!hit) {
-          setLoginErr('ID/Username atau password tidak sesuai.');
-          return;
-        }
-        setCurrentUser(hit);
-        setBranch(hit.branch || 'Jakarta Pusat');
-        setTab('dashboard');
-        notify(`Login berhasil sebagai ${hit.name}`);
-      };
-
-      const demoSignIn = (u) => {
-        setCurrentUser(u);
-        setBranch(u.branch || 'Jakarta Pusat');
-        setTab('dashboard');
-        notify(`Masuk sebagai ${u.name}`);
-      };
-
-      const onSelectFile = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-          setFormErr('Format gambar harus JPG, JPEG, atau PNG.');
-          return;
-        }
-        setFormErr('');
-        const { dataUrl, imageHash } = await compressAndHash(file);
-        setPreviewUrl(dataUrl);
-        setImgHash(imageHash);
-        const existing = reports.find((r) => r.imageHash === imageHash && r.status !== 'Ditolak');
-        setDupWarn(
-          existing
-            ? `Peringatan: Screenshot sudah digunakan pada laporan ${existing.id} (${existing.customerName}). Satu screenshot hanya boleh diklaim satu kali.`
-            : ''
-        );
-      };
-
-      const submitReport = (e) => {
-        e.preventDefault();
-        setFormErr('');
-        if (!customerName.trim()) {
-          setFormErr('Nama pelanggan atau perusahaan wajib diisi.');
-          return;
-        }
-        if (!previewUrl) {
-          setFormErr('Screenshot Google Review wajib diunggah.');
-          notify('Screenshot belum diunggah!', 'error');
-          return;
-        }
-        if (reports.some((r) => r.imageHash === imgHash && r.status !== 'Ditolak')) {
-          setFormErr('Screenshot duplikat tidak dapat diklaim ulang.');
-          return;
-        }
-        const newItem = {
-          id: `RPT-2026-${String(reports.length + 1).padStart(3, '0')}`,
-          technicianId: currentUser.id,
-          technicianName: currentUser.name,
-          reviewDate,
-          customerName: customerName.trim(),
-          serviceType,
-          branch,
-          screenshot: previewUrl,
-          imageHash: imgHash,
+    function defaultReports() {
+      return [
+        {
+          id: 'RPT-2026-001',
+          technicianId: 'TEK-001',
+          technicianName: 'Budi Santoso',
+          reviewDate: TODAY,
+          customerName: 'PT Maju Bersama Logistics',
+          serviceType: 'Anti Rayap',
+          branch: 'Jakarta Pusat',
+          screenshot: sampleImg('PT Maju Bersama Logistics', 'Anti Rayap', TODAY),
+          imageHash: 'hash_001',
+          status: 'Disetujui',
+          rejectionReason: '',
+          internalNote: 'Valid sesuai data proyek.',
+          history: [{ status: 'Menunggu Verifikasi', by: 'Budi Santoso' }, { status: 'Disetujui', by: 'Rina Marketing (Admin)' }]
+        },
+        {
+          id: 'RPT-2026-002',
+          technicianId: 'TEK-001',
+          technicianName: 'Budi Santoso',
+          reviewDate: TODAY,
+          customerName: 'Restoran Sederhana Menteng',
+          serviceType: 'Pest Control',
+          branch: 'Jakarta Pusat',
+          screenshot: sampleImg('Restoran Sederhana Menteng', 'Pest Control', TODAY),
+          imageHash: 'hash_002',
           status: 'Menunggu Verifikasi',
           rejectionReason: '',
           internalNote: '',
-          createdAt: new Date().toISOString(),
-          statusHistory: [{ status: 'Menunggu Verifikasi', by: currentUser.name, note: 'Laporan berhasil dikirim' }]
-        };
-        setReports([newItem, ...reports]);
-        setCustomerName('');
-        setPreviewUrl('');
-        setImgHash('');
-        setDupWarn('');
-        setTab('dashboard');
-        notify('Laporan berhasil dikirim dan sedang menunggu verifikasi admin.');
-      };
-
-      const verifyReport = (id, status) => {
-        const reason = reasonChoice === 'Lainnya' ? customReason.trim() : reasonChoice;
-        if (status === 'Ditolak' && !reason) {
-          notify('Alasan penolakan wajib diisi.', 'error');
-          return;
+          history: [{ status: 'Menunggu Verifikasi', by: 'Budi Santoso' }]
+        },
+        {
+          id: 'RPT-2026-003',
+          technicianId: 'TEK-002',
+          technicianName: 'Andi Pratama',
+          reviewDate: THIS_MONTH + '-08',
+          customerName: 'PT Kawasan Industri Jababeka',
+          serviceType: 'Fumigasi',
+          branch: 'Bekasi & Cikarang',
+          screenshot: sampleImg('PT Kawasan Industri Jababeka', 'Fumigasi', THIS_MONTH + '-08'),
+          imageHash: 'hash_003',
+          status: 'Disetujui',
+          rejectionReason: '',
+          internalNote: 'Terverifikasi.',
+          history: [{ status: 'Disetujui', by: 'Rina Marketing (Admin)' }]
+        },
+        {
+          id: 'RPT-2026-004',
+          technicianId: 'TEK-003',
+          technicianName: 'Dedi Kurniawan',
+          reviewDate: THIS_MONTH + '-04',
+          customerName: 'Klinik Sehat BSD',
+          serviceType: 'Disinfeksi',
+          branch: 'Tangerang',
+          screenshot: sampleImg('Klinik Sehat BSD', 'Disinfeksi', THIS_MONTH + '-04'),
+          imageHash: 'hash_004',
+          status: 'Ditolak',
+          rejectionReason: 'Screenshot tidak terbaca',
+          internalNote: 'Mohon unggah ulang gambar yang jelas.',
+          history: [{ status: 'Ditolak', by: 'Rina Marketing (Admin)' }]
         }
-        setReports((prev) =>
-          prev.map((r) =>
-            r.id === id
-              ? {
-                  ...r,
-                  status,
-                  rejectionReason: status === 'Ditolak' ? reason : '',
-                  internalNote: noteInput.trim() || r.internalNote,
-                  statusHistory: [
-                    ...(r.statusHistory || []),
-                    { status, by: currentUser.name, note: status === 'Ditolak' ? `Ditolak: ${reason}` : (noteInput.trim() || 'Disetujui') }
-                  ]
-                }
-              : r
-          )
-        );
-        setActiveReport(null);
-        setRejectOpen(false);
-        setNoteInput('');
-        notify(`Laporan ${id} diperbarui menjadi ${status}.`);
+      ];
+    }
+
+    const state = {
+      user: JSON.parse(localStorage.getItem(KEYS.SESSION) || 'null'),
+      reports: JSON.parse(localStorage.getItem(KEYS.REPORTS) || 'null') || defaultReports(),
+      rewardCfg: JSON.parse(localStorage.getItem(KEYS.REWARD_CFG) || 'null') || {
+        period: THIS_MONTH,
+        perReport: 25000,
+        minBonus: 5,
+        bonus: 100000
+      },
+      payouts: JSON.parse(localStorage.getItem(KEYS.REWARD_PAYOUTS) || '{}'),
+      tab: 'dashboard',
+      loginRole: 'teknisi',
+      loginId: 'TEK-001',
+      loginPass: '123',
+      loginError: '',
+      toast: null,
+      draft: {
+        reviewDate: TODAY,
+        customerName: '',
+        serviceType: 'Anti Rayap',
+        branch: 'Jakarta Pusat',
+        screenshot: '',
+        imageHash: '',
+        error: '',
+        dupWarning: ''
+      },
+      modalReportId: null,
+      rejectOpen: false,
+      rejectReason: REASONS[0],
+      customReason: '',
+      internalNote: '',
+      filter: { month: THIS_MONTH, tech: 'ALL', status: 'ALL', service: 'ALL' },
+      recapMonth: THIS_MONTH,
+      sortDesc: true
+    };
+
+    function saveAll() {
+      localStorage.setItem(KEYS.REPORTS, JSON.stringify(state.reports));
+      localStorage.setItem(KEYS.REWARD_CFG, JSON.stringify(state.rewardCfg));
+      localStorage.setItem(KEYS.REWARD_PAYOUTS, JSON.stringify(state.payouts));
+      if (state.user) localStorage.setItem(KEYS.SESSION, JSON.stringify(state.user));
+      else localStorage.removeItem(KEYS.SESSION);
+    }
+
+    function showToast(msg, isError) {
+      state.toast = { msg, isError: !!isError };
+      render();
+      setTimeout(() => {
+        state.toast = null;
+        render();
+      }, 3600);
+    }
+
+    function rupiah(n) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+    }
+
+    function badge(status) {
+      const map = {
+        'Menunggu Verifikasi': 'bg-amber-100 text-amber-800 border-amber-300',
+        'Disetujui': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        'Ditolak': 'bg-rose-100 text-rose-800 border-rose-300'
+      };
+      return `<span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${map[status] || 'bg-slate-100 text-slate-700'}">${status}</span>`;
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    window.handleLogin = function(e) {
+      e.preventDefault();
+      const found = USERS.find(
+        (u) =>
+          u.role === state.loginRole &&
+          (u.id.toLowerCase() === state.loginId.trim().toLowerCase() || u.username.toLowerCase() === state.loginId.trim().toLowerCase()) &&
+          u.password === state.loginPass
+      );
+      if (!found) {
+        state.loginError = 'ID/Username atau Password tidak sesuai.';
+        render();
+        return;
+      }
+      state.user = found;
+      state.draft.branch = found.branch || 'Jakarta Pusat';
+      state.tab = 'dashboard';
+      state.loginError = '';
+      saveAll();
+      render();
+      showToast('Selamat datang, ' + found.name);
+    };
+
+    window.quickDemo = function(id) {
+      const u = USERS.find((x) => x.id === id);
+      if (!u) return;
+      state.user = u;
+      state.draft.branch = u.branch || 'Jakarta Pusat';
+      state.tab = 'dashboard';
+      saveAll();
+      render();
+      showToast('Masuk sebagai ' + u.name);
+    };
+
+    window.logoutApp = function() {
+      state.user = null;
+      state.modalReportId = null;
+      saveAll();
+      render();
+    };
+
+    window.setTab = function(t) {
+      state.tab = t;
+      render();
+    };
+
+    window.handleImagePick = function(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+        state.draft.error = 'Format file wajib JPG, JPEG, atau PNG.';
+        render();
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxW = 820;
+          const w = img.width > maxW ? maxW : img.width;
+          const h = img.width > maxW ? Math.round((img.height * maxW) / img.width) : img.height;
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+          let hash = 0;
+          const sample = dataUrl.slice(0, 3000) + dataUrl.slice(-3000) + file.size;
+          for (let i = 0; i < sample.length; i++) {
+            hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+            hash |= 0;
+          }
+          const imgHash = 'hash_' + Math.abs(hash) + '_' + file.size;
+          state.draft.screenshot = dataUrl;
+          state.draft.imageHash = imgHash;
+          state.draft.error = '';
+          const dup = state.reports.find((r) => r.imageHash === imgHash && r.status !== 'Ditolak');
+          state.draft.dupWarning = dup
+            ? 'Peringatan: Screenshot sudah diklaim pada laporan ' + dup.id + ' (' + dup.customerName + '). Satu screenshot hanya boleh diklaim satu kali.'
+            : '';
+          render();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.clearDraftImage = function() {
+      state.draft.screenshot = '';
+      state.draft.imageHash = '';
+      state.draft.dupWarning = '';
+      render();
+    };
+
+    window.submitNewReport = function(e) {
+      e.preventDefault();
+      if (!state.draft.customerName.trim()) {
+        state.draft.error = 'Nama pelanggan atau perusahaan wajib diisi.';
+        render();
+        return;
+      }
+      if (!state.draft.screenshot) {
+        state.draft.error = 'Screenshot Google Review wajib diunggah.';
+        render();
+        showToast('Silakan unggah screenshot terlebih dahulu.', true);
+        return;
+      }
+      if (state.reports.some((r) => r.imageHash === state.draft.imageHash && r.status !== 'Ditolak')) {
+        state.draft.error = 'Screenshot duplikat tidak dapat diklaim ulang.';
+        render();
+        return;
+      }
+
+      const item = {
+        id: 'RPT-2026-' + String(state.reports.length + 1).padStart(3, '0'),
+        technicianId: state.user.id,
+        technicianName: state.user.name,
+        reviewDate: state.draft.reviewDate,
+        customerName: state.draft.customerName.trim(),
+        serviceType: state.draft.serviceType,
+        branch: state.draft.branch,
+        screenshot: state.draft.screenshot,
+        imageHash: state.draft.imageHash,
+        status: 'Menunggu Verifikasi',
+        rejectionReason: '',
+        internalNote: '',
+        history: [{ status: 'Menunggu Verifikasi', by: state.user.name }]
       };
 
-      const myReports = useMemo(() => reports.filter((r) => currentUser && r.technicianId === currentUser.id), [reports, currentUser]);
+      state.reports.unshift(item);
+      state.draft.customerName = '';
+      state.draft.screenshot = '';
+      state.draft.imageHash = '';
+      state.draft.error = '';
+      state.draft.dupWarning = '';
+      state.tab = 'dashboard';
+      saveAll();
+      render();
+      showToast('Laporan berhasil dikirim dan sedang menunggu verifikasi admin.');
+    };
 
-      const myStats = useMemo(() => {
-        const m = myReports.filter((r) => r.reviewDate.startsWith(CURRENT_YYYY_MM));
+    window.openModal = function(id) {
+      const r = state.reports.find((x) => x.id === id);
+      if (!r) return;
+      state.modalReportId = id;
+      state.rejectOpen = false;
+      state.internalNote = r.internalNote || '';
+      render();
+    };
+
+    window.closeModal = function() {
+      state.modalReportId = null;
+      state.rejectOpen = false;
+      render();
+    };
+
+    window.decideReport = function(id, nextStatus) {
+      const reason = state.rejectReason === 'Lainnya' ? state.customReason.trim() : state.rejectReason;
+      if (nextStatus === 'Ditolak' && !reason) {
+        showToast('Alasan penolakan wajib diisi.', true);
+        return;
+      }
+      state.reports = state.reports.map((r) => {
+        if (r.id !== id) return r;
         return {
-          total: m.length,
-          approved: m.filter((r) => r.status === 'Disetujui').length,
-          pending: m.filter((r) => r.status === 'Menunggu Verifikasi').length,
-          rejected: m.filter((r) => r.status === 'Ditolak').length
+          ...r,
+          status: nextStatus,
+          rejectionReason: nextStatus === 'Ditolak' ? reason : '',
+          internalNote: state.internalNote.trim() || r.internalNote,
+          history: [...(r.history || []), { status: nextStatus, by: state.user.name }]
         };
-      }, [myReports]);
+      });
+      state.modalReportId = null;
+      state.rejectOpen = false;
+      saveAll();
+      render();
+      showToast('Status laporan ' + id + ' diubah menjadi ' + nextStatus + '.');
+    };
 
-      const filteredAdminReports = useMemo(
-        () =>
-          reports.filter((r) => {
-            if (fMonth && !r.reviewDate.startsWith(fMonth)) return false;
-            if (fTech !== 'ALL' && r.technicianId !== fTech) return false;
-            if (fStatus !== 'ALL' && r.status !== fStatus) return false;
-            if (fService !== 'ALL' && r.serviceType !== fService) return false;
-            return true;
-          }),
-        [reports, fMonth, fTech, fStatus, fService]
-      );
+    window.downloadRecapCsv = function() {
+      const techs = USERS.filter((u) => u.role === 'teknisi');
+      const rows = techs.map((t) => {
+        const list = state.reports.filter((r) => r.technicianId === t.id && (!state.recapMonth || r.reviewDate.startsWith(state.recapMonth)));
+        return [
+          '"' + t.name + '"',
+          list.length,
+          list.filter((x) => x.status === 'Disetujui').length,
+          list.filter((x) => x.status === 'Menunggu Verifikasi').length,
+          list.filter((x) => x.status === 'Ditolak').length
+        ].join(',');
+      });
+      const csv = ['Nama Teknisi,Total Laporan,Disetujui,Menunggu,Ditolak', ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Rekap_Insekta_' + (state.recapMonth || 'Semua') + '.csv';
+      a.click();
+      showToast('File CSV rekap bulanan berhasil diunduh.');
+    };
 
-      const recapRows = useMemo(() => {
-        const rows = users
-          .filter((u) => u.role === 'teknisi')
+    function renderLogin() {
+      return `
+        <div class="min-h-screen flex items-center justify-center p-4 bg-slate-100">
+          <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div class="bg-[#034276] p-6 text-center text-white">
+              <div class="inline-block px-3 py-1 rounded-full bg-[#FEBA12] text-[#034276] text-xs font-extrabold mb-2">PT INSEKTA FOKUSTAMA</div>
+              <h1 class="text-xl font-extrabold">INSEKTA REVIEW TRACKER</h1>
+              <p class="text-xs text-blue-200 mt-1">Sistem Pelaporan & Monitoring Google Review</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
+              <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                <button type="button" onclick="state.loginRole='teknisi';state.loginId='TEK-001';state.loginPass='123';render();" class="py-2 rounded-lg text-xs font-bold ${state.loginRole === 'teknisi' ? 'bg-[#034276] text-white' : 'text-slate-600'}">Teknisi</button>
+                <button type="button" onclick="state.loginRole='admin';state.loginId='ADM-01';state.loginPass='123';render();" class="py-2 rounded-lg text-xs font-bold ${state.loginRole === 'admin' ? 'bg-[#034276] text-white' : 'text-slate-600'}">Admin / Marketing</button>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">ID Teknisi / Username</label>
+                <input type="text" value="${esc(state.loginId)}" oninput="state.loginId=this.value" class="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                <input type="password" value="${esc(state.loginPass)}" oninput="state.loginPass=this.value" class="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
+              </div>
+              ${state.loginError ? `<p class="text-xs text-rose-600 font-bold">${esc(state.loginError)}</p>` : ''}
+              <button type="submit" class="w-full py-3 rounded-xl bg-[#FEBA12] hover:bg-[#e5a50a] text-[#034276] font-extrabold text-sm shadow">Masuk</button>
+              <div class="pt-3 border-t grid grid-cols-2 gap-2">
+                ${USERS.map((u) => `
+                  <button type="button" onclick="quickDemo('${u.id}')" class="p-2 rounded-lg border text-left hover:bg-slate-50">
+                    <div class="text-xs font-bold text-[#034276] truncate">${esc(u.name)}</div>
+                    <div class="text-[10px] text-slate-500">${u.id} • ${u.role === 'admin' ? 'Admin' : esc(u.branch)}</div>
+                  </button>
+                `).join('')}
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      const root = document.getElementById('app');
+      if (!state.user) {
+        root.innerHTML = renderLogin();
+        return;
+      }
+
+      const isTech = state.user.role === 'teknisi';
+      const menus = isTech
+        ? [
+            { id: 'dashboard', label: 'Beranda' },
+            { id: 'submit', label: '+ Kirim' },
+            { id: 'history', label: 'Riwayat' },
+            { id: 'reward', label: 'Reward' }
+          ]
+        : [
+            { id: 'dashboard', label: 'Verifikasi' },
+            { id: 'recap', label: 'Rekap Bulanan' },
+            { id: 'reward', label: 'Reward' }
+          ];
+
+      let bodyHtml = '';
+
+      if (isTech && state.tab === 'dashboard') {
+        const mine = state.reports.filter((r) => r.technicianId === state.user.id);
+        const monthMine = mine.filter((r) => r.reviewDate.startsWith(THIS_MONTH));
+        bodyHtml = `
+          <div class="space-y-5">
+            <div class="bg-[#034276] text-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div class="text-xs text-[#FEBA12] font-bold">${state.user.id} • ${esc(state.user.branch)}</div>
+                <h2 class="text-xl font-extrabold">Halo, ${esc(state.user.name)}</h2>
+              </div>
+              <button onclick="setTab('submit')" class="px-4 py-3 rounded-xl bg-[#FEBA12] text-[#034276] font-extrabold text-sm shadow">+ Kirim Laporan Google Review</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-slate-500">Total Bulan Ini</div><div class="text-2xl font-extrabold text-[#034276]">${monthMine.length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-emerald-700">Disetujui</div><div class="text-2xl font-extrabold text-emerald-600">${monthMine.filter((x) => x.status === 'Disetujui').length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-amber-700">Menunggu Verifikasi</div><div class="text-2xl font-extrabold text-amber-600">${monthMine.filter((x) => x.status === 'Menunggu Verifikasi').length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-rose-700">Ditolak</div><div class="text-2xl font-extrabold text-rose-600">${monthMine.filter((x) => x.status === 'Ditolak').length}</div></div>
+            </div>
+            <div class="bg-white rounded-2xl border divide-y">
+              <div class="p-4 font-extrabold text-sm text-[#034276]">Riwayat Laporan Terbaru</div>
+              ${mine.slice(0, 5).map((r) => `
+                <div onclick="openModal('${r.id}')" class="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                  <div class="flex items-center gap-3">
+                    <img src="${r.screenshot}" alt="" class="w-12 h-12 rounded-lg object-cover border" />
+                    <div>
+                      <div class="font-bold text-sm">${esc(r.customerName)}</div>
+                      <div class="text-xs text-slate-500">${esc(r.serviceType)} • ${r.reviewDate}</div>
+                      ${r.status === 'Ditolak' ? `<div class="text-xs text-rose-600 font-semibold mt-0.5">Alasan: ${esc(r.rejectionReason)}</div>` : ''}
+                    </div>
+                  </div>
+                  ${badge(r.status)}
+                </div>
+              `).join('') || '<div class="p-6 text-center text-xs text-slate-500">Belum ada laporan.</div>'}
+            </div>
+          </div>
+        `;
+      } else if (isTech && state.tab === 'submit') {
+        bodyHtml = `
+          <form onsubmit="submitNewReport(event)" class="max-w-xl mx-auto bg-white p-5 rounded-2xl border space-y-4">
+            <h2 class="text-lg font-extrabold text-[#034276]">Form Kirim Laporan Google Review</h2>
+            <div>
+              <label class="block text-xs font-bold mb-1">Nama Teknisi</label>
+              <input type="text" value="${esc(state.user.name)}" disabled class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border text-sm" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold mb-1">Tanggal Google Review *</label>
+                <input type="date" value="${state.draft.reviewDate}" max="${TODAY}" oninput="state.draft.reviewDate=this.value" class="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">Jenis Layanan *</label>
+                <select onchange="state.draft.serviceType=this.value" class="w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white">
+                  ${SERVICES.map((s) => `<option ${state.draft.serviceType === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Nama Pelanggan / Perusahaan *</label>
+              <input type="text" value="${esc(state.draft.customerName)}" oninput="state.draft.customerName=this.value" placeholder="Contoh: PT Maju Jaya" class="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Lokasi / Cabang Layanan *</label>
+              <select onchange="state.draft.branch=this.value" class="w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white">
+                ${BRANCHES.map((b) => `<option ${state.draft.branch === b ? 'selected' : ''}>${b}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Screenshot Google Review (JPG/JPEG/PNG) *</label>
+              <input id="camFile" type="file" accept="image/jpeg,image/jpg,image/png" capture="environment" onchange="handleImagePick(this)" class="hidden" />
+              <input id="galFile" type="file" accept="image/jpeg,image/jpg,image/png" onchange="handleImagePick(this)" class="hidden" />
+              ${!state.draft.screenshot ? `
+                <div class="grid grid-cols-2 gap-2.5 p-4 border-2 border-dashed rounded-xl bg-slate-50">
+                  <button type="button" onclick="document.getElementById('camFile').click()" class="py-3 rounded-xl bg-[#034276] text-white text-xs font-bold">Ambil Kamera HP</button>
+                  <button type="button" onclick="document.getElementById('galFile').click()" class="py-3 rounded-xl bg-white border text-xs font-bold">Pilih dari Galeri</button>
+                </div>
+              ` : `
+                <div class="p-3 border rounded-xl bg-slate-50 space-y-2">
+                  <img src="${state.draft.screenshot}" alt="Preview" class="max-h-64 mx-auto rounded-lg object-contain" />
+                  <div class="flex gap-2">
+                    <button type="button" onclick="document.getElementById('galFile').click()" class="flex-1 py-2 rounded-lg border bg-white text-xs font-bold">Ganti Gambar</button>
+                    <button type="button" onclick="clearDraftImage()" class="px-3 py-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-bold">Hapus</button>
+                  </div>
+                </div>
+              `}
+            </div>
+            ${state.draft.dupWarning ? `<div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold">${esc(state.draft.dupWarning)}</div>` : ''}
+            ${state.draft.error ? `<div class="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold">${esc(state.draft.error)}</div>` : ''}
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#FEBA12] text-[#034276] font-extrabold text-sm">Kirim Laporan</button>
+          </form>
+        `;
+      } else if (isTech && state.tab === 'history') {
+        const mine = state.reports.filter((r) => r.technicianId === state.user.id);
+        bodyHtml = `
+          <div class="bg-white rounded-2xl border overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 border-b text-xs uppercase text-slate-600">
+                <tr>
+                  <th class="p-3.5">Tanggal</th>
+                  <th class="p-3.5">Pelanggan</th>
+                  <th class="p-3.5">Layanan</th>
+                  <th class="p-3.5">Bukti</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5">Catatan Admin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${mine.map((r) => `
+                  <tr onclick="openModal('${r.id}')" class="hover:bg-slate-50 cursor-pointer">
+                    <td class="p-3.5 text-xs">${r.reviewDate}</td>
+                    <td class="p-3.5 font-bold">${esc(r.customerName)}</td>
+                    <td class="p-3.5 text-xs">${esc(r.serviceType)}</td>
+                    <td class="p-3.5"><img src="${r.screenshot}" alt="" class="w-11 h-11 rounded object-cover border" /></td>
+                    <td class="p-3.5">${badge(r.status)}</td>
+                    <td class="p-3.5 text-xs text-rose-700">${r.status === 'Ditolak' ? esc(r.rejectionReason) : esc(r.internalNote || '-')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (!isTech && state.tab === 'dashboard') {
+        const list = state.reports.filter((r) => {
+          if (state.filter.month && !r.reviewDate.startsWith(state.filter.month)) return false;
+          if (state.filter.tech !== 'ALL' && r.technicianId !== state.filter.tech) return false;
+          if (state.filter.status !== 'ALL' && r.status !== state.filter.status) return false;
+          if (state.filter.service !== 'ALL' && r.serviceType !== state.filter.service) return false;
+          return true;
+        });
+        bodyHtml = `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-slate-500">Total Laporan</div><div class="text-2xl font-extrabold text-[#034276]">${list.length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-amber-700">Menunggu</div><div class="text-2xl font-extrabold text-amber-600">${list.filter((x) => x.status === 'Menunggu Verifikasi').length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-emerald-700">Disetujui</div><div class="text-2xl font-extrabold text-emerald-600">${list.filter((x) => x.status === 'Disetujui').length}</div></div>
+              <div class="bg-white p-4 rounded-xl border"><div class="text-xs text-rose-700">Ditolak</div><div class="text-2xl font-extrabold text-rose-600">${list.filter((x) => x.status === 'Ditolak').length}</div></div>
+              <div class="bg-[#034276] text-white p-4 rounded-xl col-span-2 md:col-span-1"><div class="text-xs text-blue-200">Teknisi Aktif</div><div class="text-2xl font-extrabold text-[#FEBA12]">${new Set(list.map((x) => x.technicianId)).size}</div></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <input type="month" value="${state.filter.month}" onchange="state.filter.month=this.value;render();" class="px-3 py-2 rounded-lg border font-semibold" />
+              <select onchange="state.filter.tech=this.value;render();" class="px-3 py-2 rounded-lg border font-semibold bg-white">
+                <option value="ALL">Semua Teknisi</option>
+                ${USERS.filter((u) => u.role === 'teknisi').map((u) => `<option value="${u.id}" ${state.filter.tech === u.id ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}
+              </select>
+              <select onchange="state.filter.status=this.value;render();" class="px-3 py-2 rounded-lg border font-semibold bg-white">
+                <option value="ALL">Semua Status</option>
+                <option ${state.filter.status === 'Menunggu Verifikasi' ? 'selected' : ''}>Menunggu Verifikasi</option>
+                <option ${state.filter.status === 'Disetujui' ? 'selected' : ''}>Disetujui</option>
+                <option ${state.filter.status === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
+              </select>
+              <select onchange="state.filter.service=this.value;render();" class="px-3 py-2 rounded-lg border font-semibold bg-white">
+                <option value="ALL">Semua Layanan</option>
+                ${SERVICES.map((s) => `<option ${state.filter.service === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="bg-white rounded-2xl border overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 border-b text-xs uppercase text-slate-600">
+                  <tr>
+                    <th class="p-3.5">Tanggal</th>
+                    <th class="p-3.5">Teknisi</th>
+                    <th class="p-3.5">Pelanggan</th>
+                    <th class="p-3.5">Bukti</th>
+                    <th class="p-3.5">Status</th>
+                    <th class="p-3.5 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${list.map((r) => `
+                    <tr>
+                      <td class="p-3.5 text-xs">${r.reviewDate}</td>
+                      <td class="p-3.5 font-bold text-xs">${esc(r.technicianName)}</td>
+                      <td class="p-3.5 font-bold">${esc(r.customerName)} <span class="block text-xs font-normal text-slate-500">${esc(r.serviceType)}</span></td>
+                      <td class="p-3.5"><img src="${r.screenshot}" alt="" onclick="openModal('${r.id}')" class="w-12 h-12 rounded object-cover border cursor-pointer" /></td>
+                      <td class="p-3.5">${badge(r.status)}</td>
+                      <td class="p-3.5 text-right"><button onclick="openModal('${r.id}')" class="px-3 py-1.5 rounded-lg bg-[#034276] text-white text-xs font-bold">Periksa</button></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (!isTech && state.tab === 'recap') {
+        const rows = USERS.filter((u) => u.role === 'teknisi')
           .map((t) => {
-            const list = reports.filter((r) => r.technicianId === t.id && (!recapMonth || r.reviewDate.startsWith(recapMonth)));
+            const list = state.reports.filter((r) => r.technicianId === t.id && (!state.recapMonth || r.reviewDate.startsWith(state.recapMonth)));
             return {
-              id: t.id,
               name: t.name,
-              branch: t.branch,
               total: list.length,
               approved: list.filter((x) => x.status === 'Disetujui').length,
               pending: list.filter((x) => x.status === 'Menunggu Verifikasi').length,
               rejected: list.filter((x) => x.status === 'Ditolak').length
             };
-          });
-        return rows.sort((a, b) => (sortDesc ? b.approved - a.approved : a.approved - b.approved));
-      }, [users, reports, recapMonth, sortDesc]);
-
-      const rewardRows = useMemo(
-        () =>
-          users
-            .filter((u) => u.role === 'teknisi')
-            .map((t) => {
-              const validCount = reports.filter(
-                (r) => r.technicianId === t.id && r.reviewDate.startsWith(rewardCfg.period) && r.status === 'Disetujui' && r.customerName && r.screenshot
-              ).length;
-              const base = validCount * Number(rewardCfg.rewardPerApproved || 0);
-              const bonus = validCount >= Number(rewardCfg.minApprovedForBonus || 999) ? Number(rewardCfg.bonusAmount || 0) : 0;
-              const key = `${rewardCfg.period}_${t.id}`;
-              return {
-                id: t.id,
-                name: t.name,
-                validCount,
-                totalReward: base + bonus,
-                key,
-                payoutStatus: rewardPayouts[key] || 'Belum Diproses'
-              };
-            }),
-        [users, reports, rewardCfg, rewardPayouts]
-      );
-
-      const exportCsv = () => {
-        const csv = [
-          ['Nama Teknisi', 'Total Laporan', 'Disetujui', 'Menunggu', 'Ditolak'].join(','),
-          ...recapRows.map((r) => [`"${r.name}"`, r.total, r.approved, r.pending, r.rejected].join(','))
-        ].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `Rekap_Insekta_${recapMonth || 'Semua'}.csv`;
-        a.click();
-        notify('CSV berhasil diunduh.');
-      };
-
-      if (!currentUser) {
-        return (
-          <div className="min-h-screen flex items-center justify-center p-4 bg-slate-100">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-              <div className="bg-[#034276] p-6 text-center text-white">
-                <h1 className="text-xl font-extrabold">INSEKTA REVIEW TRACKER</h1>
-                <p className="text-xs text-blue-200 mt-1">PT Insekta Fokustama</p>
+          })
+          .sort((a, b) => (state.sortDesc ? b.approved - a.approved : a.approved - b.approved));
+        bodyHtml = `
+          <div class="space-y-4">
+            <div class="bg-white p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 no-print">
+              <div class="flex items-center gap-2">
+                <input type="month" value="${state.recapMonth}" onchange="state.recapMonth=this.value;render();" class="px-3 py-2 rounded-lg border text-xs font-bold" />
+                <button onclick="state.sortDesc=!state.sortDesc;render();" class="px-3 py-2 rounded-lg bg-slate-100 text-xs font-bold">Urut Disetujui: ${state.sortDesc ? 'Tertinggi ↓' : 'Terendah ↑'}</button>
               </div>
-              <form onSubmit={loginUser} className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-                  <button
-                    type="button"
-                    onClick={() => { setRoleInput('teknisi'); setIdInput('TEK-001'); setPassInput('123'); }}
-                    className={`py-2 rounded-lg text-xs font-bold ${roleInput === 'teknisi' ? 'bg-[#034276] text-white' : 'text-slate-600'}`}
-                  >
-                    Teknisi
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setRoleInput('admin'); setIdInput('ADM-01'); setPassInput('123'); }}
-                    className={`py-2 rounded-lg text-xs font-bold ${roleInput === 'admin' ? 'bg-[#034276] text-white' : 'text-slate-600'}`}
-                  >
-                    Admin / Marketing
-                  </button>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">ID Teknisi / Username</label>
-                  <input value={idInput} onChange={(e) => setIdInput(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                  <input type="password" value={passInput} onChange={(e) => setPassInput(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
-                </div>
-                {loginErr && <p className="text-xs text-rose-600 font-semibold">{loginErr}</p>}
-                <button type="submit" className="w-full py-3 rounded-xl bg-[#FEBA12] hover:bg-[#e5a50a] text-[#034276] font-extrabold text-sm">
-                  Masuk
-                </button>
-                <div className="pt-3 border-t grid grid-cols-2 gap-2">
-                  {DEMO_USERS.map((u) => (
-                    <button key={u.id} type="button" onClick={() => demoSignIn(u)} className="p-2 rounded-lg border text-left hover:bg-slate-50">
-                      <div className="text-xs font-bold text-[#034276] truncate">{u.name}</div>
-                      <div className="text-[10px] text-slate-500">{u.id}</div>
-                    </button>
-                  ))}
-                </div>
-              </form>
+              <div class="flex gap-2">
+                <button onclick="downloadRecapCsv()" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">Export CSV</button>
+                <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-[#034276] text-white text-xs font-bold">Cetak</button>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 border-b text-xs font-bold">
+                  <tr>
+                    <th class="p-3.5">Nama Teknisi</th>
+                    <th class="p-3.5 text-right">Total Laporan</th>
+                    <th class="p-3.5 text-right">Disetujui</th>
+                    <th class="p-3.5 text-right">Menunggu</th>
+                    <th class="p-3.5 text-right">Ditolak</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${rows.map((row) => `
+                    <tr>
+                      <td class="p-3.5 font-bold">${esc(row.name)}</td>
+                      <td class="p-3.5 text-right font-bold">${row.total}</td>
+                      <td class="p-3.5 text-right font-extrabold text-emerald-600">${row.approved}</td>
+                      <td class="p-3.5 text-right text-amber-600 font-bold">${row.pending}</td>
+                      <td class="p-3.5 text-right text-rose-600 font-bold">${row.rejected}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
           </div>
-        );
+        `;
+      } else if (state.tab === 'reward') {
+        const techs = USERS.filter((u) => u.role === 'teknisi').filter((t) => !isTech || t.id === state.user.id);
+        bodyHtml = `
+          <div class="space-y-4">
+            ${!isTech ? `
+              <div class="bg-white p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                <div><label class="block font-bold mb-1">Periode Reward</label><input type="month" value="${state.rewardCfg.period}" onchange="state.rewardCfg.period=this.value;saveAll();render();" class="w-full px-3 py-2 rounded-lg border font-bold" /></div>
+                <div><label class="block font-bold mb-1">Nominal / Laporan Valid</label><input type="number" value="${state.rewardCfg.perReport}" onchange="state.rewardCfg.perReport=Number(this.value);saveAll();render();" class="w-full px-3 py-2 rounded-lg border font-bold" /></div>
+                <div><label class="block font-bold mb-1">Min. Laporan Bonus</label><input type="number" value="${state.rewardCfg.minBonus}" onchange="state.rewardCfg.minBonus=Number(this.value);saveAll();render();" class="w-full px-3 py-2 rounded-lg border font-bold" /></div>
+                <div><label class="block font-bold mb-1">Nominal Bonus</label><input type="number" value="${state.rewardCfg.bonus}" onchange="state.rewardCfg.bonus=Number(this.value);saveAll();render();" class="w-full px-3 py-2 rounded-lg border font-bold" /></div>
+              </div>
+            ` : ''}
+            <div class="bg-white rounded-2xl border p-4 space-y-3">
+              <div class="text-xs text-slate-600">Reward dihitung berdasarkan jumlah laporan Google Review yang disetujui dan memiliki data lengkap (bukan berdasarkan rating bintang atau sentimen ulasan).</div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead class="bg-slate-50 border-b text-xs">
+                    <tr>
+                      <th class="p-3">Teknisi</th>
+                      <th class="p-3 text-right">Laporan Valid</th>
+                      <th class="p-3 text-right">Total Reward</th>
+                      <th class="p-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y text-xs">
+                    ${techs.map((t) => {
+                      const valid = state.reports.filter((r) => r.technicianId === t.id && r.reviewDate.startsWith(state.rewardCfg.period) && r.status === 'Disetujui').length;
+                      const total = valid * state.rewardCfg.perReport + (valid >= state.rewardCfg.minBonus ? state.rewardCfg.bonus : 0);
+                      const key = state.rewardCfg.period + '_' + t.id;
+                      const pStatus = state.payouts[key] || 'Belum Diproses';
+                      return `
+                        <tr>
+                          <td class="p-3 font-bold">${esc(t.name)}</td>
+                          <td class="p-3 text-right font-bold text-emerald-700">${valid}</td>
+                          <td class="p-3 text-right font-extrabold text-[#034276]">${rupiah(total)}</td>
+                          <td class="p-3">
+                            ${!isTech ? `
+                              <select onchange="state.payouts['${key}']=this.value;saveAll();render();" class="px-2.5 py-1 rounded-lg border bg-white font-bold">
+                                <option ${pStatus === 'Belum Diproses' ? 'selected' : ''}>Belum Diproses</option>
+                                <option ${pStatus === 'Diproses' ? 'selected' : ''}>Diproses</option>
+                                <option ${pStatus === 'Sudah Dibayarkan' ? 'selected' : ''}>Sudah Dibayarkan</option>
+                              </select>
+                            ` : `<span class="font-bold">${esc(pStatus)}</span>`}
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
       }
 
-      const menus =
-        currentUser.role === 'teknisi'
-          ? [
-              { id: 'dashboard', label: 'Dashboard' },
-              { id: 'submit', label: '+ Kirim Laporan' },
-              { id: 'history', label: 'Riwayat' },
-              { id: 'reward', label: 'Reward' }
-            ]
-          : [
-              { id: 'dashboard', label: 'Verifikasi' },
-              { id: 'recap', label: 'Rekap Bulanan' },
-              { id: 'reward', label: 'Reward' }
-            ];
+      const activeModal = state.modalReportId ? state.reports.find((r) => r.id === state.modalReportId) : null;
 
-      return (
-        <div className="min-h-screen pb-20 md:pb-8">
-          {toast && (
-            <div className={`fixed top-4 right-4 left-4 md:left-auto md:w-96 z-50 p-3.5 rounded-xl text-white text-xs font-bold shadow-lg ${toast.type === 'error' ? 'bg-rose-600' : 'bg-[#034276]'}`}>
-              {toast.message}
+      root.innerHTML = `
+        <div class="min-h-screen pb-20 md:pb-8">
+          ${state.toast ? `
+            <div class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-50 p-3.5 rounded-xl text-white text-xs font-bold shadow-lg ${state.toast.isError ? 'bg-rose-600' : 'bg-[#034276]'}">
+              ${esc(state.toast.msg)}
             </div>
-          )}
+          ` : ''}
 
-          <header className="bg-[#034276] text-white sticky top-0 z-30 shadow no-print">
-            <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
-              <div className="font-extrabold text-sm md:text-base">INSEKTA REVIEW TRACKER</div>
-              <nav className="hidden md:flex gap-1">
-                {menus.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => setTab(m.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold ${tab === m.id ? 'bg-[#FEBA12] text-[#034276]' : 'text-blue-100 hover:bg-white/10'}`}
-                  >
-                    {m.label}
-                  </button>
-                ))}
+          <header class="bg-[#034276] text-white sticky top-0 z-30 shadow no-print">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+              <div class="font-extrabold text-sm md:text-base">INSEKTA REVIEW TRACKER</div>
+              <nav class="hidden md:flex gap-1">
+                ${menus.map((m) => `
+                  <button onclick="setTab('${m.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${state.tab === m.id ? 'bg-[#FEBA12] text-[#034276]' : 'text-blue-100 hover:bg-white/10'}">${m.label}</button>
+                `).join('')}
               </nav>
-              <div className="flex items-center gap-2">
-                <span className="hidden sm:inline text-xs font-semibold">{currentUser.name}</span>
-                <button onClick={() => setCurrentUser(null)} className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold">
-                  Keluar
-                </button>
+              <div class="flex items-center gap-2">
+                <span class="hidden sm:inline text-xs font-semibold">${esc(state.user.name)}</span>
+                <button onclick="logoutApp()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold">Keluar</button>
               </div>
             </div>
           </header>
 
-          <main className="max-w-6xl mx-auto px-4 py-5">
-            {currentUser.role === 'teknisi' && tab === 'dashboard' && (
-              <div className="space-y-5">
-                <div className="bg-[#034276] text-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="text-xs text-[#FEBA12] font-bold">{currentUser.id} • {currentUser.branch}</div>
-                    <h2 className="text-xl font-extrabold">Halo, {currentUser.name}</h2>
-                  </div>
-                  <button onClick={() => setTab('submit')} className="px-4 py-3 rounded-xl bg-[#FEBA12] text-[#034276] font-extrabold text-sm shadow">
-                    + Kirim Laporan Google Review
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-slate-500">Total Bulan Ini</div><div className="text-2xl font-extrabold text-[#034276]">{myStats.total}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-emerald-700">Disetujui</div><div className="text-2xl font-extrabold text-emerald-600">{myStats.approved}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-amber-700">Menunggu Verifikasi</div><div className="text-2xl font-extrabold text-amber-600">{myStats.pending}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-rose-700">Ditolak</div><div className="text-2xl font-extrabold text-rose-600">{myStats.rejected}</div></div>
-                </div>
-                <div className="bg-white rounded-2xl border divide-y">
-                  <div className="p-4 font-extrabold text-sm text-[#034276]">Riwayat Laporan Terbaru</div>
-                  {myReports.slice(0, 5).map((r) => (
-                    <div key={r.id} onClick={() => setActiveReport(r)} className="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                      <div className="flex items-center gap-3">
-                        <img src={r.screenshot} alt="" className="w-12 h-12 rounded-lg object-cover border" />
-                        <div>
-                          <div className="font-bold text-sm">{r.customerName}</div>
-                          <div className="text-xs text-slate-500">{r.serviceType} • {r.reviewDate}</div>
-                          {r.status === 'Ditolak' && <div className="text-xs text-rose-600 font-semibold mt-0.5">Alasan: {r.rejectionReason}</div>}
-                        </div>
-                      </div>
-                      <StatusBadge status={r.status} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <main class="max-w-6xl mx-auto px-4 py-5">${bodyHtml}</main>
 
-            {currentUser.role === 'teknisi' && tab === 'submit' && (
-              <form onSubmit={submitReport} className="max-w-xl mx-auto bg-white p-5 rounded-2xl border space-y-4">
-                <h2 className="text-lg font-extrabold text-[#034276]">Form Kirim Laporan Google Review</h2>
-                <div>
-                  <label className="block text-xs font-bold mb-1">Nama Teknisi</label>
-                  <input value={currentUser.name} disabled className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border text-sm" />
+          ${activeModal ? `
+            <div class="fixed inset-0 z-50 bg-slate-900/75 flex items-center justify-center p-4">
+              <div class="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl">
+                <div class="bg-[#034276] text-white px-5 py-3.5 flex justify-between items-center">
+                  <span class="font-extrabold text-sm">${activeModal.id} — ${esc(activeModal.customerName)}</span>
+                  <button onclick="closeModal()" class="text-xs font-bold px-2 py-1 rounded bg-white/10">Tutup ✕</button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold mb-1">Tanggal Google Review *</label>
-                    <input type="date" value={reviewDate} onChange={(e) => setReviewDate(e.target.value)} max={TODAY_STR} className="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold mb-1">Jenis Layanan *</label>
-                    <select value={serviceType} onChange={(e) => setServiceType(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white">
-                      {SERVICE_TYPES.map((s) => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold mb-1">Nama Pelanggan / Perusahaan *</label>
-                  <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Contoh: PT Maju Jaya" className="w-full px-3.5 py-2.5 rounded-xl border text-sm" required />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold mb-1">Lokasi / Cabang Layanan *</label>
-                  <select value={branch} onChange={(e) => setBranch(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white">
-                    {BRANCHES.map((b) => <option key={b}>{b}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold mb-1">Screenshot Google Review (JPG/JPEG/PNG) *</label>
-                  <input ref={camRef} type="file" accept="image/jpeg,image/jpg,image/png" capture="environment" onChange={onSelectFile} className="hidden" />
-                  <input ref={galRef} type="file" accept="image/jpeg,image/jpg,image/png" onChange={onSelectFile} className="hidden" />
-                  {!previewUrl ? (
-                    <div className="grid grid-cols-2 gap-2.5 p-4 border-2 border-dashed rounded-xl bg-slate-50">
-                      <button type="button" onClick={() => camRef.current?.click()} className="py-3 rounded-xl bg-[#034276] text-white text-xs font-bold">Ambil Kamera HP</button>
-                      <button type="button" onClick={() => galRef.current?.click()} className="py-3 rounded-xl bg-white border text-xs font-bold">Pilih dari Galeri</button>
-                    </div>
-                  ) : (
-                    <div className="p-3 border rounded-xl bg-slate-50 space-y-2">
-                      <img src={previewUrl} alt="Preview" className="max-h-64 mx-auto rounded-lg object-contain" />
-                      <div className="flex gap-2">
-                        <button type="button" onClick={() => galRef.current?.click()} className="flex-1 py-2 rounded-lg border bg-white text-xs font-bold">Ganti Gambar</button>
-                        <button type="button" onClick={() => { setPreviewUrl(''); setImgHash(''); setDupWarn(''); }} className="px-3 py-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-bold">Hapus</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {dupWarn && <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold">{dupWarn}</div>}
-                {formErr && <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold">{formErr}</div>}
-                <button type="submit" className="w-full py-3 rounded-xl bg-[#FEBA12] text-[#034276] font-extrabold text-sm">Kirim Laporan</button>
-              </form>
-            )}
-
-            {currentUser.role === 'teknisi' && tab === 'history' && (
-              <div className="bg-white rounded-2xl border overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 border-b text-xs uppercase text-slate-600">
-                    <tr>
-                      <th className="p-3.5">Tanggal</th>
-                      <th className="p-3.5">Pelanggan</th>
-                      <th className="p-3.5">Layanan</th>
-                      <th className="p-3.5">Bukti</th>
-                      <th className="p-3.5">Status</th>
-                      <th className="p-3.5">Catatan Admin</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {myReports.map((r) => (
-                      <tr key={r.id} onClick={() => setActiveReport(r)} className="hover:bg-slate-50 cursor-pointer">
-                        <td className="p-3.5 text-xs">{r.reviewDate}</td>
-                        <td className="p-3.5 font-bold">{r.customerName}</td>
-                        <td className="p-3.5 text-xs">{r.serviceType}</td>
-                        <td className="p-3.5"><img src={r.screenshot} alt="" className="w-11 h-11 rounded object-cover border" /></td>
-                        <td className="p-3.5"><StatusBadge status={r.status} /></td>
-                        <td className="p-3.5 text-xs text-rose-700">{r.status === 'Ditolak' ? r.rejectionReason : (r.internalNote || '-')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {currentUser.role === 'admin' && tab === 'dashboard' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-slate-500">Total Laporan</div><div className="text-2xl font-extrabold text-[#034276]">{filteredAdminReports.length}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-amber-700">Menunggu</div><div className="text-2xl font-extrabold text-amber-600">{filteredAdminReports.filter((x) => x.status === 'Menunggu Verifikasi').length}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-emerald-700">Disetujui</div><div className="text-2xl font-extrabold text-emerald-600">{filteredAdminReports.filter((x) => x.status === 'Disetujui').length}</div></div>
-                  <div className="bg-white p-4 rounded-xl border"><div className="text-xs text-rose-700">Ditolak</div><div className="text-2xl font-extrabold text-rose-600">{filteredAdminReports.filter((x) => x.status === 'Ditolak').length}</div></div>
-                  <div className="bg-[#034276] text-white p-4 rounded-xl col-span-2 md:col-span-1"><div className="text-xs text-blue-200">Teknisi Aktif</div><div className="text-2xl font-extrabold text-[#FEBA12]">{new Set(filteredAdminReports.map((x) => x.technicianId)).size}</div></div>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                  <input type="month" value={fMonth} onChange={(e) => setFMonth(e.target.value)} className="px-3 py-2 rounded-lg border font-semibold" />
-                  <select value={fTech} onChange={(e) => setFTech(e.target.value)} className="px-3 py-2 rounded-lg border font-semibold bg-white">
-                    <option value="ALL">Semua Teknisi</option>
-                    {users.filter((u) => u.role === 'teknisi').map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-                  </select>
-                  <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="px-3 py-2 rounded-lg border font-semibold bg-white">
-                    <option value="ALL">Semua Status</option>
-                    <option>Menunggu Verifikasi</option>
-                    <option>Disetujui</option>
-                    <option>Ditolak</option>
-                  </select>
-                  <select value={fService} onChange={(e) => setFService(e.target.value)} className="px-3 py-2 rounded-lg border font-semibold bg-white">
-                    <option value="ALL">Semua Layanan</option>
-                    {SERVICE_TYPES.map((s) => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
-
-                <div className="bg-white rounded-2xl border overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 border-b text-xs uppercase text-slate-600">
-                      <tr>
-                        <th className="p-3.5">Tanggal</th>
-                        <th className="p-3.5">Teknisi</th>
-                        <th className="p-3.5">Pelanggan</th>
-                        <th className="p-3.5">Screenshot</th>
-                        <th className="p-3.5">Status</th>
-                        <th className="p-3.5 text-right">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {filteredAdminReports.map((r) => (
-                        <tr key={r.id}>
-                          <td className="p-3.5 text-xs">{r.reviewDate}</td>
-                          <td className="p-3.5 font-bold text-xs">{r.technicianName}</td>
-                          <td className="p-3.5 font-bold">{r.customerName} <span className="block text-xs font-normal text-slate-500">{r.serviceType}</span></td>
-                          <td className="p-3.5"><img src={r.screenshot} alt="" className="w-12 h-12 rounded object-cover border cursor-pointer" onClick={() => { setActiveReport(r); setRejectOpen(false); setNoteInput(r.internalNote || ''); }} /></td>
-                          <td className="p-3.5"><StatusBadge status={r.status} /></td>
-                          <td className="p-3.5 text-right">
-                            <button onClick={() => { setActiveReport(r); setRejectOpen(false); setNoteInput(r.internalNote || ''); }} className="px-3 py-1.5 rounded-lg bg-[#034276] text-white text-xs font-bold">
-                              Periksa
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {currentUser.role === 'admin' && tab === 'recap' && (
-              <div className="space-y-4">
-                <div className="bg-white p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 no-print">
-                  <div className="flex items-center gap-2">
-                    <input type="month" value={recapMonth} onChange={(e) => setRecapMonth(e.target.value)} className="px-3 py-2 rounded-lg border text-xs font-bold" />
-                    <button onClick={() => setSortDesc(!sortDesc)} className="px-3 py-2 rounded-lg bg-slate-100 text-xs font-bold">
-                      Urut Disetujui: {sortDesc ? 'Tertinggi ↓' : 'Terendah ↑'}
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={exportCsv} className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">Export CSV</button>
-                    <button onClick={() => window.print()} className="px-3.5 py-2 rounded-xl bg-[#034276] text-white text-xs font-bold">Cetak</button>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl border overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 border-b text-xs font-bold">
-                      <tr>
-                        <th className="p-3.5">Nama Teknisi</th>
-                        <th className="p-3.5 text-right">Total Laporan</th>
-                        <th className="p-3.5 text-right">Disetujui</th>
-                        <th className="p-3.5 text-right">Menunggu</th>
-                        <th className="p-3.5 text-right">Ditolak</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {recapRows.map((row) => (
-                        <tr key={row.id}>
-                          <td className="p-3.5 font-bold">{row.name}</td>
-                          <td className="p-3.5 text-right font-bold">{row.total}</td>
-                          <td className="p-3.5 text-right font-extrabold text-emerald-600">{row.approved}</td>
-                          <td className="p-3.5 text-right text-amber-600 font-bold">{row.pending}</td>
-                          <td className="p-3.5 text-right text-rose-600 font-bold">{row.rejected}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {tab === 'reward' && (
-              <div className="space-y-4">
-                {currentUser.role === 'admin' && (
-                  <div className="bg-white p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                    <div>
-                      <label className="block font-bold mb-1">Periode Reward</label>
-                      <input type="month" value={rewardCfg.period} onChange={(e) => setRewardCfg({ ...rewardCfg, period: e.target.value })} className="w-full px-3 py-2 rounded-lg border font-bold" />
-                    </div>
-                    <div>
-                      <label className="block font-bold mb-1">Nominal / Laporan Valid</label>
-                      <input type="number" value={rewardCfg.rewardPerApproved} onChange={(e) => setRewardCfg({ ...rewardCfg, rewardPerApproved: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg border font-bold" />
-                    </div>
-                    <div>
-                      <label className="block font-bold mb-1">Min. Laporan Bonus</label>
-                      <input type="number" value={rewardCfg.minApprovedForBonus} onChange={(e) => setRewardCfg({ ...rewardCfg, minApprovedForBonus: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg border font-bold" />
-                    </div>
-                    <div>
-                      <label className="block font-bold mb-1">Nominal Bonus</label>
-                      <input type="number" value={rewardCfg.bonusAmount} onChange={(e) => setRewardCfg({ ...rewardCfg, bonusAmount: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg border font-bold" />
-                    </div>
-                  </div>
-                )}
-                <div className="bg-white rounded-2xl border p-4 space-y-3">
-                  <div className="text-xs text-slate-600">{rewardCfg.criteriaDescription}</div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 border-b text-xs">
-                        <tr>
-                          <th className="p-3">Teknisi</th>
-                          <th className="p-3 text-right">Laporan Valid</th>
-                          <th className="p-3 text-right">Total Reward</th>
-                          <th className="p-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y text-xs">
-                        {rewardRows
-                          .filter((x) => currentUser.role === 'admin' || x.id === currentUser.id)
-                          .map((r) => (
-                            <tr key={r.id}>
-                              <td className="p-3 font-bold">{r.name}</td>
-                              <td className="p-3 text-right font-bold text-emerald-700">{r.validCount}</td>
-                              <td className="p-3 text-right font-extrabold text-[#034276]">{formatIDR(r.totalReward)}</td>
-                              <td className="p-3">
-                                {currentUser.role === 'admin' ? (
-                                  <select
-                                    value={r.payoutStatus}
-                                    onChange={(e) => setRewardPayouts({ ...rewardPayouts, [r.key]: e.target.value })}
-                                    className="px-2.5 py-1 rounded-lg border bg-white font-bold"
-                                  >
-                                    <option>Belum Diproses</option>
-                                    <option>Diproses</option>
-                                    <option>Sudah Dibayarkan</option>
-                                  </select>
-                                ) : (
-                                  <span className="font-bold">{r.payoutStatus}</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-          </main>
-
-          {activeReport && (
-            <div className="fixed inset-0 z-50 bg-slate-900/75 flex items-center justify-center p-4">
-              <div className="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl">
-                <div className="bg-[#034276] text-white px-5 py-3.5 flex justify-between items-center">
-                  <span className="font-extrabold text-sm">{activeReport.id} — {activeReport.customerName}</span>
-                  <button onClick={() => { setActiveReport(null); setRejectOpen(false); }} className="text-xs font-bold px-2 py-1 rounded bg-white/10">Tutup ✕</button>
-                </div>
-                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[80vh] overflow-y-auto">
-                  <img src={activeReport.screenshot} alt="Bukti" className="w-full max-h-80 object-contain rounded-xl border bg-slate-50" />
-                  <div className="space-y-3 text-xs">
-                    <div><StatusBadge status={activeReport.status} /></div>
-                    <div><strong>Teknisi:</strong> {activeReport.technicianName} ({activeReport.branch})</div>
-                    <div><strong>Layanan:</strong> {activeReport.serviceType}</div>
-                    <div><strong>Tanggal:</strong> {activeReport.reviewDate}</div>
-                    {activeReport.status === 'Ditolak' && <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 font-semibold">Alasan: {activeReport.rejectionReason}</div>}
-                    {currentUser.role === 'admin' && (
-                      <div className="pt-2 border-t space-y-2.5">
-                        <input value={noteInput} onChange={(e) => setNoteInput(e.target.value)} placeholder="Catatan internal admin..." className="w-full px-3 py-2 rounded-lg border" />
-                        {!rejectOpen ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            <button onClick={() => verifyReport(activeReport.id, 'Disetujui')} className="py-2 rounded-xl bg-emerald-600 text-white font-extrabold">Setujui Laporan</button>
-                            <button onClick={() => setRejectOpen(true)} className="py-2 rounded-xl bg-rose-600 text-white font-extrabold">Tolak Laporan</button>
+                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[80vh] overflow-y-auto">
+                  <img src="${activeModal.screenshot}" alt="Bukti" class="w-full max-h-80 object-contain rounded-xl border bg-slate-50" />
+                  <div class="space-y-3 text-xs">
+                    <div>${badge(activeModal.status)}</div>
+                    <div><strong>Teknisi:</strong> ${esc(activeModal.technicianName)} (${esc(activeModal.branch)})</div>
+                    <div><strong>Layanan:</strong> ${esc(activeModal.serviceType)}</div>
+                    <div><strong>Tanggal:</strong> ${activeModal.reviewDate}</div>
+                    ${activeModal.status === 'Ditolak' ? `<div class="p-2.5 rounded-lg bg-rose-50 text-rose-700 font-semibold">Alasan: ${esc(activeModal.rejectionReason)}</div>` : ''}
+                    ${!isTech ? `
+                      <div class="pt-2 border-t space-y-2.5">
+                        <input type="text" value="${esc(state.internalNote)}" oninput="state.internalNote=this.value" placeholder="Catatan internal admin..." class="w-full px-3 py-2 rounded-lg border" />
+                        ${!state.rejectOpen ? `
+                          <div class="grid grid-cols-2 gap-2">
+                            <button onclick="decideReport('${activeModal.id}','Disetujui')" class="py-2 rounded-xl bg-emerald-600 text-white font-extrabold">Setujui Laporan</button>
+                            <button onclick="state.rejectOpen=true;render();" class="py-2 rounded-xl bg-rose-600 text-white font-extrabold">Tolak Laporan</button>
                           </div>
-                        ) : (
-                          <div className="p-3 rounded-xl bg-rose-50 border space-y-2">
-                            <select value={reasonChoice} onChange={(e) => setReasonChoice(e.target.value)} className="w-full px-2.5 py-2 rounded-lg border bg-white font-semibold">
-                              {REJECTION_REASONS.map((x) => <option key={x}>{x}</option>)}
-                              <option>Lainnya</option>
+                        ` : `
+                          <div class="p-3 rounded-xl bg-rose-50 border space-y-2">
+                            <select onchange="state.rejectReason=this.value;render();" class="w-full px-2.5 py-2 rounded-lg border bg-white font-semibold">
+                              ${REASONS.map((x) => `<option ${state.rejectReason === x ? 'selected' : ''}>${x}</option>`).join('')}
+                              <option ${state.rejectReason === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
                             </select>
-                            {reasonChoice === 'Lainnya' && <input value={customReason} onChange={(e) => setCustomReason(e.target.value)} placeholder="Tulis alasan..." className="w-full px-2.5 py-2 rounded-lg border bg-white" />}
-                            <button onClick={() => verifyReport(activeReport.id, 'Ditolak')} className="w-full py-2 rounded-lg bg-rose-600 text-white font-extrabold">Konfirmasi Tolak</button>
+                            ${state.rejectReason === 'Lainnya' ? `<input type="text" value="${esc(state.customReason)}" oninput="state.customReason=this.value" placeholder="Tulis alasan..." class="w-full px-2.5 py-2 rounded-lg border bg-white" />` : ''}
+                            <button onclick="decideReport('${activeModal.id}','Ditolak')" class="w-full py-2 rounded-lg bg-rose-600 text-white font-extrabold">Konfirmasi Tolak</button>
                           </div>
-                        )}
+                        `}
                       </div>
-                    )}
+                    ` : ''}
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          ` : ''}
 
-          <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t grid grid-cols-4 h-16 z-40 no-print">
-            {menus.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setTab(m.id)}
-                className={`text-[11px] font-bold flex items-center justify-center ${tab === m.id ? 'text-[#034276] border-t-2 border-[#FEBA12] bg-blue-50/50' : 'text-slate-500'}`}
-              >
-                {m.label}
-              </button>
-            ))}
+          <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t grid grid-cols-${menus.length} h-16 z-40 no-print">
+            ${menus.map((m) => `
+              <button onclick="setTab('${m.id}')" class="text-[11px] font-bold flex items-center justify-center ${state.tab === m.id ? 'text-[#034276] border-t-2 border-[#FEBA12] bg-blue-50/50' : 'text-slate-500'}">${m.label}</button>
+            `).join('')}
           </nav>
         </div>
-      );
+      `;
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    render();
   </script>
 </body>
 </html>
